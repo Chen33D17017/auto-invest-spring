@@ -1,0 +1,13 @@
+## TODO File
+- Logging System (log4j2)
+- OpenFeign for Binance
+- DBMS support (MySQL)
+- Spring Security (User Authentication)
+- Docker Support
+    - Docker
+    - Docker Compose
+- OpenFeign for Binance
+- Unit Test support
+- Ip whitelist Management
+- Swagger support
+- Adding Unit Test
