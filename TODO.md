@@ -3,9 +3,9 @@
 - OpenFeign for Binance
 - DBMS support (MySQL)
 - Spring Security (User Authentication)
-- Docker Support
-    - Docker
+- Docker 
     - Docker Compose
+      - [x] MySQL
 - OpenFeign for Binance
 - Unit Test support
 - Ip whitelist Management

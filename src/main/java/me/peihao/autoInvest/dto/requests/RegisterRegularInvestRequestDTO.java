@@ -6,7 +6,7 @@ import lombok.Data;
 import me.peihao.autoInvest.validator.Weekday;
 
 @Data
-public class RegisterRegularInvestDTO {
+public class RegisterRegularInvestRequestDTO {
 
     @NotNull
     @Weekday
