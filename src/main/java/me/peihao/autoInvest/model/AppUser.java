@@ -27,14 +27,8 @@ public class AppUser implements UserDetails {
 
   @Id
   // TODO: What is sequence generator
-  @SequenceGenerator(
-      name = "user_sequence",
-      sequenceName = "user_sequence",
-      allocationSize = 1
-  )
   @GeneratedValue(
-      strategy = GenerationType.SEQUENCE,
-      generator = "user_sequence"
+      strategy = GenerationType.IDENTITY
   )
   private Long id;
   private String name;

@@ -3,6 +3,7 @@ package me.peihao.autoInvest.service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
+import me.peihao.autoInvest.dto.response.RegistrationUserResponseDTO;
 import me.peihao.autoInvest.model.AppUser;
 import me.peihao.autoInvest.model.ConfirmationToken;
 import me.peihao.autoInvest.repository.AppUserRepository;
@@ -29,7 +30,7 @@ public class AppUserService implements UserDetailsService {
   }
 
   @Transactional
-  public String signUpUser(AppUser appUser){
+  public RegistrationUserResponseDTO signUpUser(AppUser appUser){
     boolean userExists = appUserRepository.findByUsername(appUser.getUsername())
         .isPresent();
     if (userExists) {
@@ -53,7 +54,12 @@ public class AppUserService implements UserDetailsService {
 
     // TODO: send token by discord
 
-
-    return confirmationToken.getToken();
+    RegistrationUserResponseDTO responseDTO = RegistrationUserResponseDTO.builder()
+        .userName(appUser.getName())
+        .name(appUser.getName())
+        .email(appUser.getEmail())
+        .confirmToken(confirmationToken.getToken())
+        .build();
+    return responseDTO;
   }
 }

@@ -1,8 +1,10 @@
 package me.peihao.autoInvest.model;
 
 import java.time.LocalDateTime;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -39,10 +41,7 @@ public class ConfirmationToken {
   private LocalDateTime confirmedAt;
 
   @ManyToOne
-  @JoinColumn(
-      nullable = false,
-      name = "app_user_id"
-  )
+  @JoinColumn(foreignKey = @ForeignKey(name = "FK_user_confirmToken"), name = "user_id", referencedColumnName ="id", nullable = false)
   private AppUser appUser;
 
   public ConfirmationToken(String token, LocalDateTime createdAt, LocalDateTime expiredAt,

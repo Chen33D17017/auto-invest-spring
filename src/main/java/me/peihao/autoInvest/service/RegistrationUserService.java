@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import me.peihao.autoInvest.constant.AppUserRole;
 import me.peihao.autoInvest.dto.requests.RegistrationUserRequestDTO;
+import me.peihao.autoInvest.dto.response.RegistrationUserResponseDTO;
 import me.peihao.autoInvest.model.AppUser;
 import me.peihao.autoInvest.model.ConfirmationToken;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,7 @@ public class RegistrationUserService {
   private final AppUserService appUserService;
   private final ConfirmationTokenService confirmationTokenService;
 
-  public String register(RegistrationUserRequestDTO requestDTO) {
+  public RegistrationUserResponseDTO register(RegistrationUserRequestDTO requestDTO) {
     return appUserService.signUpUser(
         new AppUser(
             requestDTO.getName(),
