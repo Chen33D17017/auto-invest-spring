@@ -2,6 +2,7 @@ package me.peihao.autoInvest.model;
 
 import java.util.Collection;
 import java.util.Collections;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -9,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
+import javax.validation.constraints.Email;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,13 +28,21 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class AppUser implements UserDetails {
 
   @Id
-  // TODO: What is sequence generator
-  @GeneratedValue(
-      strategy = GenerationType.IDENTITY
+  @SequenceGenerator(
+      name = "app_user_sequence",
+      sequenceName = "app_user_sequence",
+      allocationSize = 1
   )
+  @GeneratedValue(
+      strategy = GenerationType.SEQUENCE,
+      generator = "confirmation_token_sequence"
+  )
+  // TODO: What is sequence generator
   private Long id;
   private String name;
+  @Column(unique = true)
   private String username;
+  @Email
   private String email;
   private String password;
   @Enumerated(EnumType.STRING)

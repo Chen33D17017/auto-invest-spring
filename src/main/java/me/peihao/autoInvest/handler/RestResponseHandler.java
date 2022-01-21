@@ -68,7 +68,7 @@ public class RestResponseHandler extends ResponseEntityExceptionHandler {
             errorMessage = resultInfo.getMessage();
         }
         object.put(ERROR_MESSAGE, errorMessage);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON)
                 .body(ResultUtil.buildResult(resultInfo, object));
     }
 
@@ -84,7 +84,7 @@ public class RestResponseHandler extends ResponseEntityExceptionHandler {
                     .body(ResultUtil.buildResult(autoInvestException.getResultInfo(), object));
         }
         object.put(ERROR_MESSAGE, ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON)
                 .body(ResultUtil.buildResult(ResultInfoConstants.BAD_REQUEST, object));
     }
 }
