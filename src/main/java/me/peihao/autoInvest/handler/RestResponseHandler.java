@@ -87,4 +87,12 @@ public class RestResponseHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON)
                 .body(ResultUtil.buildResult(ResultInfoConstants.BAD_REQUEST, object));
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
+        JSONObject object = new JSONObject();
+        object.put(ERROR_MESSAGE, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON)
+            .body(ResultUtil.buildResult(ResultInfoConstants.BAD_REQUEST, object));
+    }
 }

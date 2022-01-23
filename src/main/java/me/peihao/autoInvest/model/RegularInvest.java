@@ -22,18 +22,28 @@ import me.peihao.autoInvest.constant.WeekDayEnum;
 
 @Data
 @NoArgsConstructor
-@Table(uniqueConstraints = {
-    @UniqueConstraint(name = "UniqueUserIdAndCryptoName", columnNames = { "user_id", "crypto_name" })})
+@Table(name = "regular_invest", uniqueConstraints = {
+    @UniqueConstraint(name = "UniqueUserIdAndCryptoName", columnNames = { "user_id", "crypto_name", "weekday" })})
 @Entity
-public class InvestSetting {
+public class RegularInvest {
+
+  public RegularInvest(AppUser appUser, WeekDayEnum weekday, String buyFrom, String cryptoName, Float amount){
+    this.appUser = appUser;
+    this.weekday = weekday;
+    this.buyFrom = buyFrom;
+    this.cryptoName = cryptoName;
+    this.amount = amount;
+    this.isEnable = true;
+  }
+
   @SequenceGenerator(
-      name = "investSetting_sequence",
-      sequenceName = "investSetting_sequence",
+      name = "invest_setting_sequence",
+      sequenceName = "invest_setting_sequence",
       allocationSize = 1
   )
   @GeneratedValue(
       strategy = GenerationType.SEQUENCE,
-      generator = "investSetting_sequence"
+      generator = "invest_setting_sequence"
   )
   @Id
   private Long id;
@@ -44,8 +54,15 @@ public class InvestSetting {
 
   // https://www.baeldung.com/jpa-persisting-enums-in-jpa
   @Enumerated(EnumType.STRING)
-  private WeekDayEnum weekDay;
+  @Column(name = "weekday")
+  private WeekDayEnum weekday;
+
   @Column(name = "crypto_name")
   private String cryptoName;
+
+  @Column(name = "buy_from")
+  private String buyFrom;
+
+  private Float amount;
   private boolean isEnable;
 }

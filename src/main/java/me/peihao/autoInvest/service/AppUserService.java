@@ -59,13 +59,13 @@ public class AppUserService implements UserDetailsService {
 
     // TODO: send token by discord
 
-    RegistrationUserResponseDTO responseDTO = RegistrationUserResponseDTO.builder()
+
+    return RegistrationUserResponseDTO.builder()
         .userName(appUser.getUsername())
         .name(appUser.getName())
         .email(appUser.getEmail())
         .confirmToken(confirmationToken.getToken())
         .build();
-    return responseDTO;
   }
 
   public RegistrationUserResponseDTO register(RegistrationUserRequestDTO requestDTO) {
@@ -75,6 +75,8 @@ public class AppUserService implements UserDetailsService {
             requestDTO.getUserName(),
             requestDTO.getEmail(),
             requestDTO.getPassword(),
+            requestDTO.getApiKey(),
+            requestDTO.getApiSecret(),
             AppUserRole.USER
         )
     );
@@ -114,6 +116,15 @@ public class AppUserService implements UserDetailsService {
     if (requestDTO.getPassword() != null && requestDTO.getPassword().length() > 0) {
       appUser.setPassword(requestDTO.getPassword());
     }
+
+    if (requestDTO.getApiKey() != null && requestDTO.getApiKey().length() > 0) {
+      appUser.setApiKey(requestDTO.getApiKey());
+    }
+
+    if (requestDTO.getApiSecret() != null && requestDTO.getApiSecret().length() > 0) {
+      appUser.setApiSecret(requestDTO.getApiSecret());
+    }
+
 
     appUserRepository.save(appUser);
     return PatchUserResponseDTO.builder().userName(appUser.getUsername()).email(appUser.getEmail())

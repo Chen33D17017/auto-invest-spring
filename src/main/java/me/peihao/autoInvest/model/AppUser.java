@@ -9,7 +9,9 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -24,6 +26,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Setter
 @EqualsAndHashCode
 @NoArgsConstructor
+@Table(name = "app_user")
 @Entity
 public class AppUser implements UserDetails {
 
@@ -35,7 +38,7 @@ public class AppUser implements UserDetails {
   )
   @GeneratedValue(
       strategy = GenerationType.SEQUENCE,
-      generator = "confirmation_token_sequence"
+      generator = "app_user_sequence"
   )
   // TODO: What is sequence generator
   private Long id;
@@ -45,20 +48,25 @@ public class AppUser implements UserDetails {
   @Email
   private String email;
   private String password;
+  private String apiKey;
+  private String apiSecret;
   @Enumerated(EnumType.STRING)
   private AppUserRole appUserRole;
   private Boolean locked;
   private Boolean enabled;
 
   public AppUser(String name, String username, String email, String password,
-      AppUserRole appUserRole) {
+      String apiKey, String apiSecret, AppUserRole appUserRole) {
     this.name = name;
     this.username = username;
     this.email = email;
     this.password = password;
+    this.apiKey = apiKey;
+    this.apiSecret = apiSecret;
     this.appUserRole = appUserRole;
     this.locked = false;
-    this.enabled = false;
+    // TODO: change it to false after testing
+    this.enabled = true;
   }
 
   @Override

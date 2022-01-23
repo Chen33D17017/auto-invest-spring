@@ -1,13 +1,12 @@
 ## TODO File
-- Logging System (log4j2)
-- OpenFeign for Binance
-- DBMS support (MySQL)
-- Spring Security (User Authentication)
+- [x] OpenFeign for Binance
+- [x] DBMS support (MySQL)
+- [x] Spring Security (User Authentication)
 - Docker 
     - Docker Compose
       - [x] MySQL
-- OpenFeign for Binance
 - Unit Test support
 - Ip whitelist Management
 - Swagger support
 - Adding Unit Test
+- Save order into db

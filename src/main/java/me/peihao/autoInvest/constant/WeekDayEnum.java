@@ -9,13 +9,13 @@ import java.util.Optional;
 import me.peihao.autoInvest.exception.AutoInvestException;
 
 public enum WeekDayEnum {
-    Mon,
-    Tue,
-    Wed,
-    Thu,
-    Fri,
-    Sat,
-    Sun;
+    MON,
+    TUE,
+    WED,
+    THU,
+    FRI,
+    SAT,
+    SUN;
 
     private static final Map<String, WeekDayEnum> valueToEnum = new HashMap<>();
     static {

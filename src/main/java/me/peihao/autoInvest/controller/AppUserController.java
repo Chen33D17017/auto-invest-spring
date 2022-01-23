@@ -6,9 +6,12 @@ import lombok.AllArgsConstructor;
 
 import static me.peihao.autoInvest.common.ResultUtil.generateSuccessResponse;
 
+import me.peihao.autoInvest.dto.feign.DiscordWebhookDTO;
 import me.peihao.autoInvest.dto.requests.PatchUserRequestDTO;
+import me.peihao.autoInvest.feign.DiscordFeign;
 import me.peihao.autoInvest.service.AppUserService;
 import me.peihao.autoInvest.dto.requests.RegistrationUserRequestDTO;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -23,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AppUserController {
 
   private final AppUserService appUserService;
+  private final DiscordFeign discordFeign;
 
   @PostMapping("/v1/registration")
   public ResponseEntity<String> register(
@@ -43,5 +47,12 @@ public class AppUserController {
   @GetMapping("/v1/user")
   public  ResponseEntity<String> getUserInfo(Principal principal){
     return generateSuccessResponse(appUserService.getUserInfo(principal.getName()));
+  }
+
+  @PostMapping("/v1/message")
+  public ResponseEntity<String> sendMessage(@RequestBody DiscordWebhookDTO discordWebhookDTO){
+    discordFeign.sendWebhook("844183408196190210/JFG_huurfO6AkddEBCobHai8mV3D6ODemaL4an4N9IpqG1Xm2EJ_JKmLOIYtbQ9a7Diq",
+        discordWebhookDTO);
+    return new ResponseEntity<>(HttpStatus.OK);
   }
 }

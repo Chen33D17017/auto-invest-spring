@@ -1,21 +1,27 @@
 package me.peihao.autoInvest.dto.requests;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
-import lombok.Data;
-import me.peihao.autoInvest.validator.Weekday;
+import lombok.Value;
 
-@Data
+@Value
 public class RegisterRegularInvestRequestDTO {
 
     @NotNull
-    @Weekday
-    private String workDay;
+    @JsonProperty("weekdays")
+    List<String> weekdays;
 
     @NotNull(message = "This field cannot be null")
-    private String currency;
+    @JsonProperty("crypto_name")
+    String cryptoName;
+
+    @NotNull
+    @JsonProperty("buy_from")
+    String buyFrom;
 
     @NotNull
     @Positive
-    private float amount;
+    Float amount;
 }

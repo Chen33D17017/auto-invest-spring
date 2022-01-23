@@ -2,60 +2,62 @@ package me.peihao.autoInvest.controller;
 
 import java.security.Principal;
 import javax.validation.Valid;
-import me.peihao.autoInvest.common.ResultUtil;
-import me.peihao.autoInvest.constant.ResultInfoConstants;
-import me.peihao.autoInvest.dto.requests.UpdateRegularInvestDTO;
-import me.peihao.autoInvest.model.AppUser;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import lombok.AllArgsConstructor;
+import me.peihao.autoInvest.dto.requests.PutRegularInvestRequestDTO;
+import me.peihao.autoInvest.service.RegularInvestService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import me.peihao.autoInvest.dto.requests.RegisterRegularInvestRequestDTO;
+import static me.peihao.autoInvest.common.ResultUtil.generateSuccessResponse;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping("/regular_invest")
 public class RegularInvestController {
 
+    private final RegularInvestService regularInvestService;
+
     @PostMapping
     public ResponseEntity<String> registerRegularInvest(
+        Principal principal,
         @Valid @RequestBody RegisterRegularInvestRequestDTO registerRegularInvestRequestDTO) {
-        // TODO: Need to be Implemented
-        System.out.println(registerRegularInvestRequestDTO);
-        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).
-            body(ResultUtil.buildResult(ResultInfoConstants.SUCCESS,
-                registerRegularInvestRequestDTO));
+        return generateSuccessResponse(regularInvestService
+            .registerRegularInvest(principal.getName(), registerRegularInvestRequestDTO));
     }
 
     @GetMapping
-    public ResponseEntity<String> fetchRegularInvest(@PathVariable String crypto) {
-        // TODO: Need to be Implemented
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<String> fetchRegularInvest(Principal principal,
+        @RequestParam(required = false, name = "crypto_name") String cryptoName,
+        @RequestParam(required = false, name = "weekday") String weekday) {
+        return generateSuccessResponse(
+            regularInvestService.fetchRegularInvest(principal.getName(), cryptoName, weekday));
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<String> fetchAllRegularInvest() {
-        // TODO: Need to be Implemented
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @PatchMapping
+    @PutMapping
     public ResponseEntity<String> updateRegularInvest(
-        @Valid @RequestBody UpdateRegularInvestDTO updateRegularInvestDTO) {
-        return new ResponseEntity<>(HttpStatus.OK);
+        Principal principal,
+        @RequestParam(name = "crypto_name") String cryptoName,
+        @Valid @RequestBody PutRegularInvestRequestDTO updateRegularInvestDTO) {
+        return generateSuccessResponse(
+            regularInvestService.updateRegularInvest(principal.getName(), cryptoName, updateRegularInvestDTO)
+        );
     }
 
-    @GetMapping("/hello")
-    public ResponseEntity<String> Hello(@AuthenticationPrincipal AppUser targetUser){
-        System.out.println("Hello World");
-        System.out.println(targetUser.getUsername());
-        System.out.println(targetUser.getEmail());
-       return new ResponseEntity<>(HttpStatus.OK);
+    @DeleteMapping
+    public ResponseEntity<String> deleteRegularInvest(
+        Principal principal,
+        @RequestParam(name = "crypto_name") String cryptoName,
+        @RequestParam(required = false, name="weekday") String weekday
+    ){
+        return generateSuccessResponse(
+            regularInvestService.deleteRegularInvest(principal.getName(), cryptoName, weekday)
+        );
     }
 }

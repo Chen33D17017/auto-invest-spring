@@ -1,9 +1,12 @@
 package me.peihao.autoInvest.dto.requests;
 import lombok.Data;
+import lombok.Value;
 
-@Data
+@Value
 public class PatchUserRequestDTO {
-  private String name;
-  private String email;
-  private String password;
+  String name;
+  String email;
+  String password;
+  String apiKey;
+  String apiSecret;
 }

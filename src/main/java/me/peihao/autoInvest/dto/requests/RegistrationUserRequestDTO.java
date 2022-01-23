@@ -3,20 +3,26 @@ package me.peihao.autoInvest.dto.requests;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import lombok.Data;
+import lombok.Value;
 
-@Data
+@Value
 public class RegistrationUserRequestDTO {
 
   @NotBlank
-  private String name;
+  String name;
 
   @NotBlank
-  private String userName;
+  String userName;
 
   @NotNull
   @Email
-  private String email;
+  String email;
   @NotBlank
-  private String password;
+  String password;
+
+  @NotNull
+  String apiKey;
+
+  @NotNull
+  String apiSecret;
 }
