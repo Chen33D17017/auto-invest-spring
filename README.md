@@ -31,7 +31,7 @@ This controller need to contain the username, password on basic auth for authent
 ## Other
 This application is for experimental usage, if you like to use, please do care about your own security.
 
-## TODO File
+## TODO 
 - Redis for confirmation token
 - DB flyway migration setting
 - Docker

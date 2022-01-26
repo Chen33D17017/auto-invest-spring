@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.peihao.autoInvest.constant.WeekDayEnum;
 import me.peihao.autoInvest.dto.feign.requeset.DiscordMessageRequestDTO;
+import me.peihao.autoInvest.dto.feign.response.BinanceOrderResponseDTO;
 import me.peihao.autoInvest.dto.requests.MakeOrderRequestDTO;
 import me.peihao.autoInvest.dto.response.GetProfitResponseDTO;
 import me.peihao.autoInvest.feign.DiscordFeign;
@@ -33,13 +34,15 @@ public class RegularInvestTask {
   @Value("${webhook.wait-time}")
 
   private final String messageTemplate = "Regular Invest Report\n" +
-      "--------------------------\n" +
-      "Name： %s\n" +
-      "Crypto Name： %s\n" +
-      "Total Buy Amount： %f\n" +
-      "Average Price： %f\n" +
-      "Profit Rate: %s\n" +
-      "--------------------------";
+      "```" +
+      "Name                 : %s\n" +
+      "Crypto Name          : %s\n" +
+      "Price Now            : %f\n" +
+      "Buying Amount        : %f\n" +
+      "Total Amount         : %f\n" +
+      "Average brought Price: %f\n" +
+      "Profit Rate          : %s\n" +
+      "```" ;
 
   @Scheduled(cron = "${auto-invest.order.cron}", zone = "${auto-invest.cron.time-zone}")
   void executeOrder() {
@@ -47,6 +50,7 @@ public class RegularInvestTask {
   }
 
   private void makeOrder(RegularInvest regularInvest){
+    BinanceOrderResponseDTO buyingResult = new BinanceOrderResponseDTO();
     if(env.equals("local")){
       log.info("{} buy symbol {} for {}", regularInvest.getAppUser().getUsername(),
           regularInvest.getCryptoName(), regularInvest.getAmount());
@@ -57,11 +61,15 @@ public class RegularInvestTask {
           .side("BUY")
           .amount(regularInvest.getAmount())
           .build();
-      binanceGatewayService.makeAndSaveOrder(regularInvest.getAppUser().getUsername(), makerOrderRequest);
+      buyingResult = binanceGatewayService.makeAndSaveOrder(regularInvest.getAppUser().getUsername(), makerOrderRequest);
     }
     GetProfitResponseDTO profit = binanceGatewayService.getProfit(regularInvest.getAppUser().getUsername(), regularInvest.getCryptoName());
     discordFeign.sendWebhook(webhookId, new DiscordMessageRequestDTO(String.format(
-        messageTemplate, regularInvest.getAppUser().getName(), profit.getCryptoName(),
+        messageTemplate,
+        regularInvest.getAppUser().getName(),
+        profit.getCryptoName(),
+        buyingResult.getPrice(),
+        buyingResult.getExecutedQty(),
         profit.getAmount(),
         profit.getAveragePrice(),
         profit.getProfitRate()
