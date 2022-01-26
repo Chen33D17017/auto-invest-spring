@@ -18,4 +18,6 @@ public class BinanceFeignConfiguration {
     return Feign.builder().requestInterceptor(new BinanceRequestInterceptor());
   }
 
+  // TODO: Dealing with error case
+
 }

@@ -1,15 +1,18 @@
 package me.peihao.autoInvest.controller;
 
 
+import java.security.Principal;
 import java.sql.Timestamp;
 import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.peihao.autoInvest.dto.feign.requeset.BinanceOrderRequestDTO;
-import me.peihao.autoInvest.dto.feign.BinanceTimestampRequestDTO;
+import me.peihao.autoInvest.dto.feign.requeset.BinanceTimestampRequestDTO;
 import me.peihao.autoInvest.dto.feign.requeset.BinanceTradeHistoryRequestDTO;
+import me.peihao.autoInvest.dto.requests.MakeOrderRequestDTO;
 import me.peihao.autoInvest.feign.BinanceFeign;
 import me.peihao.autoInvest.model.AppUser;
+import me.peihao.autoInvest.service.BinanceGatewayService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,21 +29,33 @@ import static me.peihao.autoInvest.common.ResultUtil.generateSuccessResponse;
 @Slf4j
 public class BinanceGatewayController {
 
+  final private BinanceGatewayService binanceGatewayService;
   final private BinanceFeign binanceFeign;
 
 
+  // Order to Binance Directly
   @PostMapping("/v1/order")
   public ResponseEntity<String> makeOrder(
       @AuthenticationPrincipal AppUser appUser,
-      @Valid @RequestBody BinanceOrderRequestDTO binanceOrderRequestDTO){
-    return generateSuccessResponse(binanceOrderRequestDTO);
+      @Valid @RequestBody BinanceOrderRequestDTO binanceOrderRequestDTO) {
+    return generateSuccessResponse(
+        binanceFeign.newOrder(binanceOrderRequestDTO, appUser.getApiSecret(),
+            appUser.getApiKey()));
+  }
+
+  // Order to Binance and save trading log to db
+  @PostMapping("/v2/order")
+  public ResponseEntity<String> makerOderAndSave(
+      Principal principal,
+      @Valid @RequestBody MakeOrderRequestDTO makeOrderRequestDTO) {
+    return generateSuccessResponse(
+        binanceGatewayService.makeAndSaveOrder(principal.getName(), makeOrderRequestDTO));
   }
 
   @GetMapping("/v1/status")
   public ResponseEntity<String> checkStatus(
       @AuthenticationPrincipal AppUser appUser) {
-    Long timestamp = new Timestamp(System.currentTimeMillis()).getTime();
-    BinanceTimestampRequestDTO requestQuery = new BinanceTimestampRequestDTO(timestamp);
+    BinanceTimestampRequestDTO requestQuery = new BinanceTimestampRequestDTO();
     return generateSuccessResponse(
         binanceFeign.checkSpotAccountInfo(requestQuery, appUser.getApiSecret(),
             appUser.getApiKey()));
@@ -55,5 +70,23 @@ public class BinanceGatewayController {
     return generateSuccessResponse(
         binanceFeign.getTradeHistory(requestQuery, appUser.getApiSecret(),
             appUser.getApiKey()));
+  }
+
+  @PostMapping("/v1/migration")
+  public ResponseEntity<String> migrateHistory(
+      Principal principal,
+      @RequestParam(name = "symbol") String symbol){
+    return generateSuccessResponse(
+        binanceGatewayService.migrateTradeHistory(principal.getName(), symbol));
+  }
+
+  @GetMapping("/v1/profit")
+  public ResponseEntity<String> getProfit(
+      Principal principal,
+      @RequestParam(name = "crypto_name") String cryptoName,
+      @RequestParam(name = "buy_from") String buyFrom){
+    return generateSuccessResponse(
+        binanceGatewayService.getProfit(principal.getName(), cryptoName)
+    );
   }
 }

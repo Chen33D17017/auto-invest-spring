@@ -65,4 +65,7 @@ public class RegularInvest {
 
   private Float amount;
   private boolean isEnable;
+
+  @Column(name = "smart_buy", nullable = false)
+  private boolean smartBuy = false;
 }

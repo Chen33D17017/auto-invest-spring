@@ -3,11 +3,8 @@ package me.peihao.autoInvest.feign.configuration;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import me.peihao.autoInvest.common.Signature;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Configuration;
 
 
@@ -16,6 +13,10 @@ import org.springframework.context.annotation.Configuration;
 public class BinanceRequestInterceptor implements RequestInterceptor {
   @Override
   public void apply(RequestTemplate template) {
+    Collection credentialHeader = template.headers().get("credential");
+    if (credentialHeader == null){
+      return;
+    }
     String credential = template.headers().get("credential").stream().findFirst().orElseThrow(
         () -> new IllegalArgumentException("Fail to generate credential")
     );

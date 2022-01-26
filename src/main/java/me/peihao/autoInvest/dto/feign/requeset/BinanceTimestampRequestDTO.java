@@ -1,18 +1,20 @@
 package me.peihao.autoInvest.dto.feign.requeset;
 
 import java.sql.Timestamp;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 @AllArgsConstructor
-public class BinanceFlexibleProductPositionRequestDTO {
+public class BinanceTimestampRequestDTO {
 
-  public BinanceFlexibleProductPositionRequestDTO(String asset) {
-    this.asset = asset;
+  public BinanceTimestampRequestDTO(){
     this.timestamp = new Timestamp(System.currentTimeMillis()).getTime();
   }
 
-  private String asset;
-  private Long timestamp;
+  @NotNull
+  Long timestamp;
 }

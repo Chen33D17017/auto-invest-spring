@@ -14,6 +14,7 @@ import javax.persistence.SequenceGenerator;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+// should be migrate to redis
 @Data
 @NoArgsConstructor
 @Entity

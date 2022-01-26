@@ -23,7 +23,10 @@ public class ResultInfoConstants {
     public static final ResultInfo FUNCTION_NOT_MATCH = new ResultInfo("00000017", "FUNCTION_NOT_MATCH", "Function parameter does not match API", "F");
     public static final ResultInfo SYSTEM_ERROR = new ResultInfo("00000900", "SYSTEM_ERROR", "System error", "F");
 
-    public static final ResultInfo INVALID_WEEK_DAY = new ResultInfo("01000001", "BAD_REQUEST", "Invalid Week Day Type", "F");
+    public static final ResultInfo INVALID_WEEK_DAY = new ResultInfo("01000001", "INVALID_WEEK_DAY", "Invalid Week Day Type", "F");
+    public static final ResultInfo BALANCE_INSUFFICIENT = new ResultInfo("01000002", "BALANCE_INSUFFICIENT", "Balance insufficient", "F");
+    public static final ResultInfo FAIL_GETTING_ASSET = new ResultInfo("01000003", "FAIL_GETTING_ASSET", "Fail to retrieve asset", "F");
+    public static final ResultInfo TRADE_HISTORY_NOT_FOUND = new ResultInfo("01000003", "TRADE_HISTORY_NOT_FOUND", "Not found any records", "F");
     private static final Map<String, ResultInfo> codeToResultInfo;
     private static final List<ResultInfo> ResultInfoList = new ArrayList<>();
     static {

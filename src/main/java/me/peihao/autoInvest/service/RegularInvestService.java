@@ -14,6 +14,7 @@ import me.peihao.autoInvest.model.AppUser;
 import me.peihao.autoInvest.model.RegularInvest;
 import me.peihao.autoInvest.repository.AppUserRepository;
 import me.peihao.autoInvest.repository.RegularInvestRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -89,5 +90,4 @@ public class RegularInvestService {
     }
     return fetchRegularInvest(username, cryptoName, null);
   }
-
 }

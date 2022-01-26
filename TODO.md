@@ -10,3 +10,4 @@
 - Swagger support
 - Adding Unit Test
 - Save order into db
+- integrate with fear index: [source](https://www.capmarketcap.com/en/fear-and-greed-index)

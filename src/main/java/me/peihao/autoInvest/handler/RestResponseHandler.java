@@ -95,4 +95,13 @@ public class RestResponseHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON)
             .body(ResultUtil.buildResult(ResultInfoConstants.BAD_REQUEST, object));
     }
+
+    @ExceptionHandler(AutoInvestException.class)
+    public ResponseEntity<String> handleAutoInvestException(AutoInvestException ex) {
+        JSONObject object = new JSONObject();
+        object.put(ERROR_MESSAGE, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON)
+            .body(ResultUtil.buildResult(ex.getResultInfo(), object));
+    }
+
 }

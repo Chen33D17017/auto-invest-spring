@@ -6,11 +6,13 @@ import lombok.AllArgsConstructor;
 
 import static me.peihao.autoInvest.common.ResultUtil.generateSuccessResponse;
 
-import me.peihao.autoInvest.dto.feign.DiscordWebhookDTO;
+import lombok.RequiredArgsConstructor;
+import me.peihao.autoInvest.dto.feign.requeset.DiscordMessageRequestDTO;
 import me.peihao.autoInvest.dto.requests.PatchUserRequestDTO;
 import me.peihao.autoInvest.feign.DiscordFeign;
 import me.peihao.autoInvest.service.AppUserService;
 import me.peihao.autoInvest.dto.requests.RegistrationUserRequestDTO;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,9 +52,9 @@ public class AppUserController {
   }
 
   @PostMapping("/v1/message")
-  public ResponseEntity<String> sendMessage(@RequestBody DiscordWebhookDTO discordWebhookDTO){
+  public ResponseEntity<String> sendMessage(@RequestBody DiscordMessageRequestDTO discordMessageRequestDTO){
     discordFeign.sendWebhook("844183408196190210/JFG_huurfO6AkddEBCobHai8mV3D6ODemaL4an4N9IpqG1Xm2EJ_JKmLOIYtbQ9a7Diq",
-        discordWebhookDTO);
+        discordMessageRequestDTO);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 }

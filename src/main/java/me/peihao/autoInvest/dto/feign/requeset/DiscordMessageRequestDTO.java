@@ -1,4 +1,4 @@
-package me.peihao.autoInvest.dto.feign;
+package me.peihao.autoInvest.dto.feign.requeset;
 
 
 import lombok.AllArgsConstructor;
@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class DiscordWebhookDTO {
+public class DiscordMessageRequestDTO {
   private String content;
 }
