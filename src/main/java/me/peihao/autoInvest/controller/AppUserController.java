@@ -50,11 +50,4 @@ public class AppUserController {
   public  ResponseEntity<String> getUserInfo(Principal principal){
     return generateSuccessResponse(appUserService.getUserInfo(principal.getName()));
   }
-
-  @PostMapping("/v1/message")
-  public ResponseEntity<String> sendMessage(@RequestBody DiscordMessageRequestDTO discordMessageRequestDTO){
-    discordFeign.sendWebhook("844183408196190210/JFG_huurfO6AkddEBCobHai8mV3D6ODemaL4an4N9IpqG1Xm2EJ_JKmLOIYtbQ9a7Diq",
-        discordMessageRequestDTO);
-    return new ResponseEntity<>(HttpStatus.OK);
-  }
 }
