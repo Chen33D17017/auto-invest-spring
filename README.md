@@ -31,11 +31,20 @@ This controller need to contain the username, password on basic auth for authent
 ## Other
 This application is for experimental usage, if you like to use, please do care about your own security.
 
+
+## How to run
+### Build Docker
+```bash
+mvn clean install
+docker build -t auto-invest-sprint .
+```
+
+### Run Application
+```bash
+docker container run --network auto-invest_service-network -p 8080:8080 auto-invest-sprint
+```
 ## TODO 
 - Redis for confirmation token
-- DB flyway migration setting
-- Docker
-  - Docker Compose
 - Unit Test support
 - Ip Whitelist Management
 - Swagger support
