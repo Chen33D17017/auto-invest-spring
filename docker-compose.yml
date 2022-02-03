@@ -15,5 +15,11 @@ services:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_USER=user
       - MYSQL_PASSWORD=password
+  redis:
+    image: redis:4.0.10-alpine
+    networks:
+      - service-network
+    ports:
+      - "6379"
 networks:
   service-network:

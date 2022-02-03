@@ -96,6 +96,15 @@ public class RestResponseHandler extends ResponseEntityExceptionHandler {
             .body(ResultUtil.buildResult(ResultInfoConstants.BAD_REQUEST, object));
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<String> handleIllegalStateException(IllegalStateException ex) {
+        JSONObject object = new JSONObject();
+        object.put(ERROR_MESSAGE, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.APPLICATION_JSON)
+            .body(ResultUtil.buildResult(ResultInfoConstants.PARAM_ILLEGAL, object));
+    }
+
+
     @ExceptionHandler(AutoInvestException.class)
     public ResponseEntity<String> handleAutoInvestException(AutoInvestException ex) {
         JSONObject object = new JSONObject();

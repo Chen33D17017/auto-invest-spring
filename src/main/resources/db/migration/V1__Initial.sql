@@ -1,15 +1,11 @@
 create table app_user (id bigint not null, api_key varchar(255), api_secret varchar(255), app_user_role varchar(255), email varchar(255), enabled bit, locked bit, name varchar(255), password varchar(255), username varchar(255), primary key (id)) engine=InnoDB;
 create table app_user_sequence (next_val bigint) engine=InnoDB;
 insert into app_user_sequence values ( 1 );
-create table confirmation_token_sequence (next_val bigint) engine=InnoDB;
-insert into confirmation_token_sequence values ( 1 );
-create table confirmation_token (id bigint not null, confirmed_at datetime, created_at datetime not null, expired_at datetime not null, token varchar(255), user_id bigint not null, primary key (id)) engine=InnoDB;
 create table invest_setting_sequence (next_val bigint) engine=InnoDB;
 insert into invest_setting_sequence values ( 1 );
 create table regular_invest (id bigint not null, amount float, buy_from varchar(255), crypto_name varchar(255), is_enable bit not null, smart_buy bit not null, weekday varchar(255), user_id bigint not null, primary key (id)) engine=InnoDB;
 create table trade_history (id bigint not null, amount float, price float, side varchar(255), symbol varchar(255), time datetime, user_id bigint not null, primary key (id)) engine=InnoDB;
 alter table app_user add constraint UK_3k4cplvh82srueuttfkwnylq0 unique (username);
 alter table regular_invest add constraint UniqueUserIdAndCryptoName unique (user_id, crypto_name, weekday);
-alter table confirmation_token add constraint FK_user_confirmToken foreign key (user_id) references app_user (id);
 alter table regular_invest add constraint FK_user_InvestSetting foreign key (user_id) references app_user (id);
 alter table trade_history add constraint FK_tradeLog_user foreign key (user_id) references app_user (id);

@@ -1,17 +1,21 @@
 package me.peihao.autoInvest.service;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import me.peihao.autoInvest.constant.AppUserRole;
+import me.peihao.autoInvest.dto.feign.requeset.DiscordMessageRequestDTO;
 import me.peihao.autoInvest.dto.requests.PatchUserRequestDTO;
 import me.peihao.autoInvest.dto.requests.RegistrationUserRequestDTO;
 import me.peihao.autoInvest.dto.response.GetUserResponseDTO;
 import me.peihao.autoInvest.dto.response.PatchUserResponseDTO;
 import me.peihao.autoInvest.dto.response.RegistrationUserResponseDTO;
+import me.peihao.autoInvest.feign.DiscordFeign;
 import me.peihao.autoInvest.model.AppUser;
-import me.peihao.autoInvest.model.ConfirmationToken;
 import me.peihao.autoInvest.repository.AppUserRepository;
+import me.peihao.autoInvest.repository.ConfirmationTokenRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,14 +24,29 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@AllArgsConstructor
-
 public class AppUserService implements UserDetailsService {
 
-  private final static String USER_NOT_FOUND = "user with email %s not found";
+  private final static String USER_NOT_FOUND = "username %s not found";
   private final AppUserRepository appUserRepository;
   private final BCryptPasswordEncoder bCryptPasswordEncoder;
-  private final ConfirmationTokenService confirmationTokenService;
+  private final ConfirmationTokenRepository confirmationTokenRepository;
+  private final DiscordFeign discordFeign;
+  private final String adminWebhookId;
+
+  @Autowired
+  public AppUserService(
+      AppUserRepository appUserRepository,
+      BCryptPasswordEncoder bCryptPasswordEncoder,
+      ConfirmationTokenRepository confirmationTokenRepository,
+      DiscordFeign discordFeign,
+      @Value("${webhook.admin-id}") String adminWebhookId
+  ) {
+    this.appUserRepository = appUserRepository;
+    this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+    this.confirmationTokenRepository = confirmationTokenRepository;
+    this.discordFeign = discordFeign;
+    this.adminWebhookId = adminWebhookId;
+  }
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -49,23 +68,17 @@ public class AppUserService implements UserDetailsService {
 
     String token = UUID.randomUUID().toString();
 
-    ConfirmationToken confirmationToken = new ConfirmationToken(
-        token,
-        LocalDateTime.now(),
-        LocalDateTime.now().plusMinutes(15),
-        appUser
-    );
+    confirmationTokenRepository.setConfirmToken(token, appUser.getName());
 
-    confirmationTokenService.saveConfirmationToken(confirmationToken);
-
-    // TODO: send token by discord
+    discordFeign.sendWebhook(adminWebhookId, new DiscordMessageRequestDTO(
+        String.format("%s register with confirmation token %s", appUser.getUsername(), token)));
 
 
     return RegistrationUserResponseDTO.builder()
         .userName(appUser.getUsername())
         .name(appUser.getName())
         .email(appUser.getEmail())
-        .confirmToken(confirmationToken.getToken())
+        .confirmToken(token)
         .build();
   }
 
@@ -83,22 +96,28 @@ public class AppUserService implements UserDetailsService {
     );
   }
 
-  @Transactional
-  public String confirmToken(String token){
-    ConfirmationToken confirmationToken = confirmationTokenService.getConfirmationToken(token).orElseThrow(
-        () -> new IllegalStateException("token not found"));
-    if (confirmationToken.getConfirmedAt() != null){
-      throw new IllegalStateException("email already confirmed");
-    }
+  public RegistrationUserResponseDTO reissueConfirmationToken(String username) {
+    AppUser targetUser = appUserRepository.findByUsername(username).orElseThrow(
+        () -> new IllegalStateException("User not found")
+    );
+    String token = UUID.randomUUID().toString();
+    confirmationTokenRepository.setConfirmToken(token, username);
 
-    LocalDateTime expiredAt = confirmationToken.getExpiredAt();
+    return RegistrationUserResponseDTO.builder()
+        .userName(targetUser.getUsername())
+        .name(targetUser.getName())
+        .email(targetUser.getEmail())
+        .confirmToken(token)
+        .build();
+  }
 
-    if(expiredAt.isBefore(LocalDateTime.now())){
-      throw new IllegalStateException("token expired");
-    }
-
-    confirmationTokenService.setConfirmedAtByToken(token);
-    confirmationToken.getAppUser().setEnabled(true);
+  public String confirmToken(String token) {
+    String username = confirmationTokenRepository.getUserNameFromConfirmToken(token)
+        .orElseThrow(() -> new IllegalStateException("Invalid Token"));
+    AppUser targetUser = appUserRepository.findByUsername(username).orElseThrow(
+        () -> new IllegalStateException("User not found")
+    );
+    targetUser.setEnabled(true);
     return "confirm";
   }
 

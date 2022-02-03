@@ -27,6 +27,7 @@ public class ResultInfoConstants {
     public static final ResultInfo BALANCE_INSUFFICIENT = new ResultInfo("01000002", "BALANCE_INSUFFICIENT", "Balance insufficient", "F");
     public static final ResultInfo FAIL_GETTING_ASSET = new ResultInfo("01000003", "FAIL_GETTING_ASSET", "Fail to retrieve asset", "F");
     public static final ResultInfo TRADE_HISTORY_NOT_FOUND = new ResultInfo("01000003", "TRADE_HISTORY_NOT_FOUND", "Not found any records", "F");
+    public static final ResultInfo CONFIRM_TOKEN_SET_ERROR = new ResultInfo("01000003", "CONFIRM_TOKEN_SET_ERROR", "Fail to set confirm token", "F");
     private static final Map<String, ResultInfo> codeToResultInfo;
     private static final List<ResultInfo> ResultInfoList = new ArrayList<>();
     static {

@@ -66,7 +66,7 @@ public class AppUser implements UserDetails {
     this.appUserRole = appUserRole;
     this.locked = false;
     // TODO: change it to false after testing
-    this.enabled = true;
+    this.enabled = false;
   }
 
   @Override

@@ -1,25 +1,44 @@
 package me.peihao.autoInvest.repository;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
-import me.peihao.autoInvest.model.ConfirmationToken;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+import java.util.concurrent.TimeUnit;
+import me.peihao.autoInvest.constant.ResultInfoConstants;
+import me.peihao.autoInvest.exception.AutoInvestException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public interface ConfirmationTokenRepository extends JpaRepository<ConfirmationToken, Long> {
+public class ConfirmationTokenRepository {
+  private static final String PREFIX_CONFIRM_TOKEN_KEY = "pc_oneTimeCodePayment_";
+  private final RedisTemplate<Object, Object> redisTemplate;
+  private final long confirmTokenLiveTime;
 
-  // TODO: Research about JPA & add query
-  Optional<ConfirmationToken> findByToken(String token);
+  public ConfirmationTokenRepository(
+      RedisTemplate<Object, Object> redisTemplate,
+      @Value("${auto-invest.token.live-time}") long confirmTokenLiveTimeSec) {
+    this.redisTemplate = redisTemplate;
+    this.confirmTokenLiveTime = confirmTokenLiveTimeSec;
+  }
 
-  // TODO: check @modifying
-  @Transactional
-  @Modifying
-  @Query("UPDATE ConfirmationToken c " +
-      "SET c.confirmedAt = ?2 " +
-      "WHERE c.token = ?1")
-  void setConfirmedAtByToken(String token, LocalDateTime confirmedAt);
+  public void setConfirmToken(String token, String username) {
+    boolean isNotDuplicate = redisTemplate.opsForValue().setIfAbsent(
+        PREFIX_CONFIRM_TOKEN_KEY + token,
+        username);
+
+    if (!isNotDuplicate) {
+      throw new AutoInvestException(ResultInfoConstants.CONFIRM_TOKEN_SET_ERROR);
+    }
+
+    redisTemplate.expire(
+        PREFIX_CONFIRM_TOKEN_KEY + token,
+        confirmTokenLiveTime,
+        TimeUnit.SECONDS
+    );
+  }
+
+  public Optional<String> getUserNameFromConfirmToken(String token) {
+    return Optional.ofNullable((String) redisTemplate.opsForValue()
+        .get(PREFIX_CONFIRM_TOKEN_KEY + token));
+  }
 }
