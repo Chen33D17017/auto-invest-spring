@@ -17,6 +17,7 @@ services:
       - MYSQL_PASSWORD=password
   redis:
     image: redis:4.0.10-alpine
+    container_name: service-cache
     networks:
       - service-network
     ports:

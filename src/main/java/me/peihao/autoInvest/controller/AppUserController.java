@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import static me.peihao.autoInvest.common.ResultUtil.generateSuccessResponse;
 
 import me.peihao.autoInvest.dto.requests.PatchUserRequestDTO;
-import me.peihao.autoInvest.feign.DiscordFeign;
 import me.peihao.autoInvest.service.AppUserService;
 import me.peihao.autoInvest.dto.requests.RegistrationUserRequestDTO;
 import org.springframework.http.ResponseEntity;
