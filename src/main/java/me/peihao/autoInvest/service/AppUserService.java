@@ -1,21 +1,22 @@
 package me.peihao.autoInvest.service;
 
 import java.util.UUID;
-import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.peihao.autoInvest.constant.AppUserRole;
+import me.peihao.autoInvest.constant.ResultInfoConstants;
 import me.peihao.autoInvest.dto.feign.requeset.DiscordMessageRequestDTO;
 import me.peihao.autoInvest.dto.requests.PatchUserRequestDTO;
 import me.peihao.autoInvest.dto.requests.RegistrationUserRequestDTO;
 import me.peihao.autoInvest.dto.response.GetUserResponseDTO;
 import me.peihao.autoInvest.dto.response.PatchUserResponseDTO;
 import me.peihao.autoInvest.dto.response.RegistrationUserResponseDTO;
+import me.peihao.autoInvest.exception.AutoInvestException;
 import me.peihao.autoInvest.feign.DiscordFeign;
 import me.peihao.autoInvest.model.AppUser;
 import me.peihao.autoInvest.repository.AppUserRepository;
 import me.peihao.autoInvest.repository.ConfirmationTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 public class AppUserService implements UserDetailsService {
 
   private final static String USER_NOT_FOUND = "username %s not found";
@@ -68,7 +70,7 @@ public class AppUserService implements UserDetailsService {
 
     String token = UUID.randomUUID().toString();
 
-    confirmationTokenRepository.setConfirmToken(token, appUser.getName());
+    confirmationTokenRepository.setConfirmToken(token, appUser.getUsername());
 
     discordFeign.sendWebhook(adminWebhookId, new DiscordMessageRequestDTO(
         String.format("%s register with confirmation token %s", appUser.getUsername(), token)));
@@ -113,11 +115,12 @@ public class AppUserService implements UserDetailsService {
 
   public String confirmToken(String token) {
     String username = confirmationTokenRepository.getUserNameFromConfirmToken(token)
-        .orElseThrow(() -> new IllegalStateException("Invalid Token"));
+        .orElseThrow(() -> new AutoInvestException(ResultInfoConstants.CONFIRM_TOKEN_ERROR));
     AppUser targetUser = appUserRepository.findByUsername(username).orElseThrow(
-        () -> new IllegalStateException("User not found")
+        () -> new AutoInvestException(ResultInfoConstants.CONFIRM_TOKEN_ERROR)
     );
     targetUser.setEnabled(true);
+    appUserRepository.save(targetUser);
     return "confirm";
   }
 

@@ -46,10 +46,10 @@ public class AppUserController {
     return generateSuccessResponse(appUserService.getUserInfo(principal.getName()));
   }
 
-  @PostMapping
+  @PostMapping("/reissue")
   public ResponseEntity<String> reissueConfirmationToken(
-      Principal principal){
+      @PathParam("username") String username){
     return generateSuccessResponse(
-        appUserService.reissueConfirmationToken(principal.getName()));
+        appUserService.reissueConfirmationToken(username));
   }
 }

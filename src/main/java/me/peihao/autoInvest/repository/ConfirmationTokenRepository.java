@@ -4,18 +4,20 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import me.peihao.autoInvest.constant.ResultInfoConstants;
 import me.peihao.autoInvest.exception.AutoInvestException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class ConfirmationTokenRepository {
-  private static final String PREFIX_CONFIRM_TOKEN_KEY = "pc_oneTimeCodePayment_";
+  private static final String PREFIX_CONFIRM_TOKEN_KEY = "confirmation_token_";
   private final RedisTemplate<Object, Object> redisTemplate;
   private final long confirmTokenLiveTime;
 
+  @Autowired
   public ConfirmationTokenRepository(
-      RedisTemplate<Object, Object> redisTemplate,
+      RedisTemplate redisTemplate,
       @Value("${auto-invest.token.live-time}") long confirmTokenLiveTimeSec) {
     this.redisTemplate = redisTemplate;
     this.confirmTokenLiveTime = confirmTokenLiveTimeSec;
