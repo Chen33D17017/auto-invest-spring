@@ -77,7 +77,6 @@ public class BinanceGatewayService {
       }
     }
 
-
     BinanceOrderResponseDTO binanceResponse = binanceFeign.newOrder(
         BinanceOrderRequestDTO.builder()
             .symbol(request.getSymbol() + request.getBuy_from())
@@ -105,19 +104,30 @@ public class BinanceGatewayService {
   @Transactional
   public BinanceTradeHistoryResponseDTO[] saveOrders(AppUser targetUser,
       BinanceTradeHistoryRequestDTO request) {
+    BinanceTradeHistoryResponseDTO prev = null;
     BinanceTradeHistoryResponseDTO[] histories = binanceFeign
         .getTradeHistory(request, targetUser.getApiSecret(), targetUser.getApiKey());
     for (BinanceTradeHistoryResponseDTO history : histories) {
       try {
-        tradeHistoryRepository.save(TradeHistory.builder()
-            .orderId(history.getOrderId())
-            .symbol(history.getSymbol())
-            .appUser(targetUser)
-            .amount(history.getQty())
-            .price(history.getPrice())
-            .side(history.getIsBuyer() ? "buy" : "sell")
-            .time(getLocalDateTime(history.getTime()))
-            .build());
+        if (prev == null) {
+          prev = history;
+        } else if (prev.getOrderId().equals(history.getOrderId())) {
+          prev.setPrice(
+              (prev.getPrice() * prev.getQty() + history.getQty() * history.getPrice()) / (
+                  prev.getQty() + history.getQty()));
+          prev.setQty(prev.getQty() + history.getQty());
+        } else {
+            tradeHistoryRepository.save(TradeHistory.builder()
+                .orderId(prev.getOrderId())
+                .symbol(prev.getSymbol())
+                .appUser(targetUser)
+                .amount(prev.getQty())
+                .price(prev.getPrice())
+                .side(prev.getIsBuyer() ? "buy" : "sell")
+                .time(getLocalDateTime(prev.getTime()))
+                .build());
+            prev = history;
+        }
       } catch (ConstraintViolationException e) {
         log.warn("Order with orderId : {} is already exists", history.getOrderId());
       }
@@ -127,15 +137,13 @@ public class BinanceGatewayService {
 
   public GetProfitResponseDTO getProfit(String username, String cryptoName) {
     List<TradeHistory> histories = new ArrayList<>();
-    for(String stableCoin: stableCoinLists){
+    for (String stableCoin : stableCoinLists) {
       String symbol = cryptoName + stableCoin;
       histories.addAll(tradeHistoryRepository
           .findRegularInvestsByUsernameAndSymbol(username, symbol));
     }
 
-
-
-    if(histories.size() == 0){
+    if (histories.size() == 0) {
       throw new AutoInvestException(ResultInfoConstants.TRADE_HISTORY_NOT_FOUND);
     }
     float totalAmount = 0f;
@@ -150,7 +158,7 @@ public class BinanceGatewayService {
       }
     }
 
-    Float averagePrice =  totalCost / totalAmount;
+    Float averagePrice = totalCost / totalAmount;
     Float priceNow = binanceFeign.getPrice(cryptoName + "USDT").getPrice();
     Float profitRate = (priceNow - averagePrice) / averagePrice * 100;
 
@@ -182,14 +190,16 @@ public class BinanceGatewayService {
         log.error("Fail to waiting");
       }
 
-      BinanceOrderStatusRequestDTO request = new BinanceOrderStatusRequestDTO(response.getSymbol(), response.getOrderId());
-      BinanceOrderResponseDTO orderStatus = binanceFeign.checkOrderStatus(request, targetUser.getApiSecret(), targetUser.getApiKey());
+      BinanceOrderStatusRequestDTO request = new BinanceOrderStatusRequestDTO(response.getSymbol(),
+          response.getOrderId());
+      BinanceOrderResponseDTO orderStatus = binanceFeign
+          .checkOrderStatus(request, targetUser.getApiSecret(), targetUser.getApiKey());
       // try again
       saveAfterOrder(targetUser, orderStatus);
     }
   }
 
-  private  LocalDateTime getLocalDateTime(Long timestamp) {
+  private LocalDateTime getLocalDateTime(Long timestamp) {
     return LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp),
         TimeZone.getDefault().toZoneId());
   }

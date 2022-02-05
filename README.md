@@ -48,6 +48,7 @@ docker container run --network auto-invest_service-network -p 8080:8080 auto-inv
 - Unit Test support
 - Ip Whitelist Management
 - Swagger support
+- logging improvement
 - Adding Unit Test
 - Enhance user authentication for security
 - Integrate with fear index: [source](https://www.capmarketcap.com/en/fear-and-greed-index)

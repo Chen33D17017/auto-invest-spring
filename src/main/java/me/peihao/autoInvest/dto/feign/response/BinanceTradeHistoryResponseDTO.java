@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BinanceTradeHistoryResponseDTO {
   private String symbol;
-  private Integer Id;
+  private Long Id;
   private Long orderId;
   private Float price;
   private Float qty;
