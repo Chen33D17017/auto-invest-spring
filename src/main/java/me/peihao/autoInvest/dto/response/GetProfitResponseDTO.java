@@ -22,4 +22,6 @@ public class GetProfitResponseDTO {
 
   @JsonProperty("profit_rate")
   private String profitRate;
+
+  private Float priceNow;
 }

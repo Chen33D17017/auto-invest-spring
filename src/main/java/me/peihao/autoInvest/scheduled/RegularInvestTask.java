@@ -1,6 +1,8 @@
 package me.peihao.autoInvest.scheduled;
 
+import java.time.Clock;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -68,7 +70,7 @@ public class RegularInvestTask {
         messageTemplate,
         regularInvest.getAppUser().getName(),
         profit.getCryptoName(),
-        buyingResult.getPrice(),
+        profit.getPriceNow(),
         buyingResult.getExecutedQty(),
         profit.getAmount(),
         profit.getAveragePrice(),
@@ -83,6 +85,7 @@ public class RegularInvestTask {
   }
 
   private WeekDayEnum getWeekDayToday(){
-    return WeekDayEnum.valueOf(LocalDate.now().getDayOfWeek().toString().substring(0, 3));
+    return WeekDayEnum.valueOf(LocalDate.now(
+        Clock.system(ZoneId.of("Asia/Tokyo"))).getDayOfWeek().toString().substring(0, 3));
   }
 }
