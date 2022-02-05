@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.peihao.autoInvest.dto.feign.requeset.BinanceOrderRequestDTO;
+import me.peihao.autoInvest.dto.feign.requeset.BinanceOrderStatusRequestDTO;
 import me.peihao.autoInvest.dto.feign.requeset.BinanceTimestampRequestDTO;
 import me.peihao.autoInvest.dto.feign.requeset.BinanceTradeHistoryRequestDTO;
 import me.peihao.autoInvest.dto.requests.MakeOrderRequestDTO;
@@ -50,6 +51,17 @@ public class BinanceGatewayController {
       @Valid @RequestBody MakeOrderRequestDTO makeOrderRequestDTO) {
     return generateSuccessResponse(
         binanceGatewayService.makeAndSaveOrder(principal.getName(), makeOrderRequestDTO));
+  }
+
+  @GetMapping("/v1/order")
+  public ResponseEntity<String> fetchOrder(
+      @AuthenticationPrincipal AppUser appUser,
+      @RequestParam(name = "symbol") String symbol,
+      @RequestParam(name = "orderId") Long orderId
+  ){
+    return generateSuccessResponse(
+        binanceFeign.checkOrderStatus(new BinanceOrderStatusRequestDTO(symbol, orderId),
+            appUser.getApiSecret(), appUser.getApiKey()));
   }
 
   @GetMapping("/v1/status")

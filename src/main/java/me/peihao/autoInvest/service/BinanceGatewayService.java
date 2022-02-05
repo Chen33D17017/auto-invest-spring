@@ -96,8 +96,7 @@ public class BinanceGatewayService {
         () -> new UsernameNotFoundException("Fail to retrieve user")
     );
 
-    BinanceTradeHistoryRequestDTO request = new BinanceTradeHistoryRequestDTO(symbol,
-        new Timestamp(System.currentTimeMillis()).getTime());
+    BinanceTradeHistoryRequestDTO request = new BinanceTradeHistoryRequestDTO(symbol);
     return saveOrders(targetUser, request);
   }
 
@@ -108,31 +107,37 @@ public class BinanceGatewayService {
     BinanceTradeHistoryResponseDTO[] histories = binanceFeign
         .getTradeHistory(request, targetUser.getApiSecret(), targetUser.getApiKey());
     for (BinanceTradeHistoryResponseDTO history : histories) {
-      try {
-        if (prev == null) {
-          prev = history;
-        } else if (prev.getOrderId().equals(history.getOrderId())) {
-          prev.setPrice(
-              (prev.getPrice() * prev.getQty() + history.getQty() * history.getPrice()) / (
-                  prev.getQty() + history.getQty()));
-          prev.setQty(prev.getQty() + history.getQty());
-        } else {
-            tradeHistoryRepository.save(TradeHistory.builder()
-                .orderId(prev.getOrderId())
-                .symbol(prev.getSymbol())
-                .appUser(targetUser)
-                .amount(prev.getQty())
-                .price(prev.getPrice())
-                .side(prev.getIsBuyer() ? "buy" : "sell")
-                .time(getLocalDateTime(prev.getTime()))
-                .build());
-            prev = history;
-        }
-      } catch (ConstraintViolationException e) {
-        log.warn("Order with orderId : {} is already exists", history.getOrderId());
+      if (prev == null) {
+        prev = history;
+      } else if (prev.getOrderId().equals(history.getOrderId())) {
+        prev.setPrice(
+            (prev.getPrice() * prev.getQty() + history.getQty() * history.getPrice()) / (
+                prev.getQty() + history.getQty()));
+        prev.setQty(prev.getQty() + history.getQty());
+      } else {
+        saveHistory(prev, targetUser);
+        prev = history;
       }
     }
+    saveHistory(prev, targetUser);
+
     return histories;
+  }
+
+  private void saveHistory(BinanceTradeHistoryResponseDTO history, AppUser targetUser){
+    try {
+      tradeHistoryRepository.save(TradeHistory.builder()
+          .orderId(history.getOrderId())
+          .symbol(history.getSymbol())
+          .appUser(targetUser)
+          .amount(history.getQty())
+          .price(history.getPrice())
+          .side(history.getIsBuyer() ? "buy" : "sell")
+          .time(getLocalDateTime(history.getTime()))
+          .build());
+    } catch (ConstraintViolationException e) {
+      log.warn("Order with orderId : {} is already exists", history.getOrderId());
+    }
   }
 
   public GetProfitResponseDTO getProfit(String username, String cryptoName) {
@@ -169,23 +174,14 @@ public class BinanceGatewayService {
 
   @Async
   public void saveAfterOrder(AppUser targetUser, BinanceOrderResponseDTO response) {
-    if (response.getStatus().equals("FILLED") || response.getStatus().equals("REJECTED")) {
-      TradeHistory tradeRst = TradeHistory.builder()
-          .time(getLocalDateTime(response.getTransactTime()))
-          .orderId(response.getOrderId())
-          .symbol(response.getSymbol())
-          .appUser(targetUser)
-          .price(response.getPrice())
-          .amount(response.getExecutedQty())
-          .side(response.getSide())
-          .build();
-
-      tradeHistoryRepository.save(tradeRst);
+    if (response.getStatus().equals("FILLED")) {
+      BinanceTradeHistoryRequestDTO request = new BinanceTradeHistoryRequestDTO(response.getSymbol(),
+          response.getOrderId());
+      saveOrders(targetUser, request);
     } else {
-
       // If the order is not completed, waiting for 1 seconds and get order history again
       try {
-        TimeUnit.SECONDS.sleep(1);
+        TimeUnit.MICROSECONDS.sleep(300);
       } catch (InterruptedException e) {
         log.error("Fail to waiting");
       }
