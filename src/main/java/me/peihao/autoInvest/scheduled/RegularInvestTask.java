@@ -1,8 +1,10 @@
 package me.peihao.autoInvest.scheduled;
 
+import feign.FeignException;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,23 +50,29 @@ public class RegularInvestTask {
 
   @Scheduled(cron = "${auto-invest.order.cron}", zone = "${auto-invest.cron.time-zone}")
   void executeOrder() {
-    regularInvestRepository.findRegularInvestsByWeekday(getWeekDayToday()).forEach(this::makeOrder);
+    List<RegularInvest> executedRegularInvest = regularInvestRepository.findRegularInvestsByWeekday(getWeekDayToday());
+    for(RegularInvest regularInvest: executedRegularInvest){
+      try {
+        makeOrder(regularInvest);
+        TimeUnit.SECONDS.sleep(1);
+      } catch (InterruptedException e){
+        log.error("Fail to wait for next regular invest");
+      } catch (FeignException e){
+        log.error("Fail to executed feign to Binance : {}", e.getCause().getMessage());
+      }
+    }
   }
 
   private void makeOrder(RegularInvest regularInvest){
-    BinanceOrderResponseDTO buyingResult = new BinanceOrderResponseDTO();
-    if(env.equals("local")){
-      log.info("{} buy symbol {} for {}", regularInvest.getAppUser().getUsername(),
-          regularInvest.getCryptoName(), regularInvest.getAmount());
-    } else {
+    log.info("{} buy symbol {} for {}", regularInvest.getAppUser().getUsername(),
+        regularInvest.getCryptoName(), regularInvest.getAmount());
       MakeOrderRequestDTO makerOrderRequest = MakeOrderRequestDTO.builder()
           .symbol(regularInvest.getCryptoName())
           .buy_from(regularInvest.getBuyFrom())
           .side("BUY")
           .amount(regularInvest.getAmount())
           .build();
-      buyingResult = binanceGatewayService.makeAndSaveOrder(regularInvest.getAppUser().getUsername(), makerOrderRequest);
-    }
+    BinanceOrderResponseDTO buyingResult = binanceGatewayService.makeAndSaveOrder(regularInvest.getAppUser().getUsername(), makerOrderRequest);
     GetProfitResponseDTO profit = binanceGatewayService.getProfit(regularInvest.getAppUser().getUsername(), regularInvest.getCryptoName());
     discordFeign.sendWebhook(webhookId, new DiscordMessageRequestDTO(String.format(
         messageTemplate,
