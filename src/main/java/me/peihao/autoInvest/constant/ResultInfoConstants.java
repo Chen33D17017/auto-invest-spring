@@ -22,6 +22,7 @@ public class ResultInfoConstants {
     public static final ResultInfo MSG_PARSE_ERROR = new ResultInfo("00000015", "MSG_PARSE_ERROR", "Message parsed error", "F");
     public static final ResultInfo FUNCTION_NOT_MATCH = new ResultInfo("00000017", "FUNCTION_NOT_MATCH", "Function parameter does not match API", "F");
     public static final ResultInfo SYSTEM_ERROR = new ResultInfo("00000900", "SYSTEM_ERROR", "System error", "F");
+    public static final ResultInfo NOT_FOUND = new ResultInfo("00000018", "NOT FOUND", "Not found", "F");
 
     public static final ResultInfo INVALID_WEEK_DAY = new ResultInfo("01000001", "INVALID_WEEK_DAY", "Invalid Week Day Type", "F");
     public static final ResultInfo BALANCE_INSUFFICIENT = new ResultInfo("01000002", "BALANCE_INSUFFICIENT", "Balance insufficient", "F");

@@ -10,6 +10,7 @@ import me.peihao.autoInvest.common.ResultInfo;
 import me.peihao.autoInvest.common.ResultUtil;
 import me.peihao.autoInvest.constant.ResultInfoConstants;
 import me.peihao.autoInvest.exception.AutoInvestException;
+import me.peihao.autoInvest.exception.BinanceFeignException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -41,8 +42,6 @@ public class RestResponseHandler extends ResponseEntityExceptionHandler {
                         .map(Reference::getFieldName).collect(
                                 Collectors.joining(", "));
                 object.put(ERROR_MESSAGE, "Invalid Format on " + errMsg);
-            } else {
-                System.out.println(ex.getCause());
             }
         } else {
             object.put(ERROR_MESSAGE, ex.getMessage());
@@ -101,7 +100,7 @@ public class RestResponseHandler extends ResponseEntityExceptionHandler {
         JSONObject object = new JSONObject();
         object.put(ERROR_MESSAGE, ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.APPLICATION_JSON)
-            .body(ResultUtil.buildResult(ResultInfoConstants.PARAM_ILLEGAL, object));
+            .body(ResultUtil.buildResult(ResultInfoConstants.NOT_FOUND, object));
     }
 
 
@@ -111,6 +110,14 @@ public class RestResponseHandler extends ResponseEntityExceptionHandler {
         object.put(ERROR_MESSAGE, ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON)
             .body(ResultUtil.buildResult(ex.getResultInfo(), object));
+    }
+
+    @ExceptionHandler(BinanceFeignException.class)
+    public ResponseEntity<String> handleBinanceFeignException(BinanceFeignException ex){
+        JSONObject object = new JSONObject();
+        object.put(ERROR_MESSAGE, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON)
+            .body(ResultUtil.buildResult(ResultInfoConstants.BAD_REQUEST, object));
     }
 
 }

@@ -64,17 +64,14 @@ public class BinanceGatewayService {
       BinanceFlexibleProductPositionResponseDTO availableProduct = Arrays.stream(flexibleAssets)
           .filter(f -> f.getFreeAmount() > needAmount).findAny().orElseThrow(
               () -> new AutoInvestException(ResultInfoConstants.BALANCE_INSUFFICIENT));
+      wait(500);
       binanceFeign.redeemFlexibleProduct(
           new BinanceRedeemFlexibleProductRequestDTO(availableProduct.getProductId(), needAmount),
           targetUser.getApiSecret(),
           targetUser.getApiKey());
 
       // Just in case, waiting one second for redeem
-      try {
-        TimeUnit.SECONDS.sleep(1);
-      } catch (InterruptedException e) {
-        log.error("Fail to waiting");
-      }
+      wait(1000);
     }
 
     BinanceOrderResponseDTO binanceResponse = binanceFeign.newOrder(
@@ -209,5 +206,13 @@ public class BinanceGatewayService {
             () -> new AutoInvestException(ResultInfoConstants.FAIL_GETTING_ASSET)
         );
     return balanceInfo.getFree();
+  }
+
+  private void wait(int miliSec){
+    try {
+      TimeUnit.MILLISECONDS.sleep(miliSec);
+    } catch (InterruptedException e) {
+      log.error("Fail to waiting");
+    }
   }
 }

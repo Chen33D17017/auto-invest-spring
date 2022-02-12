@@ -44,7 +44,6 @@ docker build -t auto-invest-sprint .
 docker container run --network auto-invest_service-network -p 8080:8080 auto-invest-sprint
 ```
 ## TODO 
-- Setting .env file for secret file
 - Unit Test support
 - Ip Whitelist Management
 - Swagger support

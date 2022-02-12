@@ -13,6 +13,7 @@ import me.peihao.autoInvest.dto.feign.requeset.DiscordMessageRequestDTO;
 import me.peihao.autoInvest.dto.feign.response.BinanceOrderResponseDTO;
 import me.peihao.autoInvest.dto.requests.MakeOrderRequestDTO;
 import me.peihao.autoInvest.dto.response.GetProfitResponseDTO;
+import me.peihao.autoInvest.exception.BinanceFeignException;
 import me.peihao.autoInvest.feign.DiscordFeign;
 import me.peihao.autoInvest.model.RegularInvest;
 import me.peihao.autoInvest.repository.RegularInvestRepository;
@@ -35,6 +36,7 @@ public class RegularInvestTask {
   private final DiscordFeign discordFeign;
   @Value("${spring.profiles.active}") String env;
   @Value("${webhook.target-id}") String webhookId;
+  @Value("${webhook.error-id}") String errorWebhookId;
   @Value("${webhook.wait-time}")
 
   private final String messageTemplate = "Regular Invest Report\n" +
@@ -50,15 +52,19 @@ public class RegularInvestTask {
 
   @Scheduled(cron = "${auto-invest.order.cron}", zone = "${auto-invest.cron.time-zone}")
   void executeOrder() {
-    List<RegularInvest> executedRegularInvest = regularInvestRepository.findRegularInvestsByWeekday(getWeekDayToday());
-    for(RegularInvest regularInvest: executedRegularInvest){
+    List<RegularInvest> executedRegularInvest = regularInvestRepository
+        .findRegularInvestsByWeekday(getWeekDayToday());
+    for (RegularInvest regularInvest : executedRegularInvest) {
       try {
         makeOrder(regularInvest);
         TimeUnit.SECONDS.sleep(1);
-      } catch (InterruptedException e){
+      } catch (InterruptedException e) {
         log.error("Fail to wait for next regular invest");
-      } catch (FeignException e){
-        log.error("Fail to executed feign to Binance : {}", e.getCause().getMessage());
+      } catch (BinanceFeignException e) {
+        discordFeign.sendWebhook(errorWebhookId, new DiscordMessageRequestDTO(String
+            .format("%s fail to execute the regular invest: %s",
+                regularInvest.getAppUser().getName(), e.getMessage())));
+        log.error("{}", String.valueOf(e));
       }
     }
   }
