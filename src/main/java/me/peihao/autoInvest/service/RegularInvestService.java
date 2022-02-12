@@ -1,9 +1,11 @@
 package me.peihao.autoInvest.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.peihao.autoInvest.constant.WeekDayEnum;
 import me.peihao.autoInvest.dto.requests.PutRegularInvestRequestDTO;
 import me.peihao.autoInvest.dto.requests.RegisterRegularInvestRequestDTO;
@@ -14,10 +16,14 @@ import me.peihao.autoInvest.model.AppUser;
 import me.peihao.autoInvest.model.RegularInvest;
 import me.peihao.autoInvest.repository.AppUserRepository;
 import me.peihao.autoInvest.repository.RegularInvestRepository;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class RegularInvestService {
@@ -89,5 +95,11 @@ public class RegularInvestService {
           weekday);
     }
     return fetchRegularInvest(username, cryptoName, null);
+  }
+
+  public String getFearIndex() throws IOException {
+    Document doc = Jsoup.connect("https://alternative.me/crypto/fear-and-greed-index/").get();
+    Elements elem = doc.selectXpath("//*[@id=\"main\"]/section/div/div[3]/div[2]/div/div/div[1]/div[2]/div");
+    return elem.text();
   }
 }

@@ -1,5 +1,6 @@
 package me.peihao.autoInvest.controller;
 
+import java.io.IOException;
 import java.security.Principal;
 import javax.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -59,6 +60,13 @@ public class RegularInvestController {
     ){
         return generateSuccessResponse(
             regularInvestService.deleteRegularInvest(principal.getName(), cryptoName, weekday)
+        );
+    }
+
+    @GetMapping("/fear")
+    public ResponseEntity<String> getFearIndex() throws IOException {
+        return generateSuccessResponse(
+            regularInvestService.getFearIndex()
         );
     }
 }
