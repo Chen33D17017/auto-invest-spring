@@ -6,20 +6,24 @@ import java.util.List;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.peihao.autoInvest.constant.ResultInfoConstants;
 import me.peihao.autoInvest.constant.WeekDayEnum;
 import me.peihao.autoInvest.dto.requests.PutRegularInvestRequestDTO;
 import me.peihao.autoInvest.dto.requests.RegisterRegularInvestRequestDTO;
 import me.peihao.autoInvest.dto.response.FetchRegularInvestResponseDTO;
 import me.peihao.autoInvest.dto.response.PutRegularInvestResponseDTO;
 import me.peihao.autoInvest.dto.response.RegisterRegularInvestResponseDTO;
+import me.peihao.autoInvest.exception.AutoInvestException;
 import me.peihao.autoInvest.model.AppUser;
 import me.peihao.autoInvest.model.RegularInvest;
 import me.peihao.autoInvest.repository.AppUserRepository;
+import me.peihao.autoInvest.repository.FearIndexRepository;
 import me.peihao.autoInvest.repository.RegularInvestRepository;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +34,7 @@ public class RegularInvestService {
 
   private final RegularInvestRepository regularInvestRepository;
   private final AppUserRepository appUserRepository;
+  private final FearIndexRepository fearIndexRepository;
 
   @Transactional
   public RegisterRegularInvestResponseDTO registerRegularInvest(String username,
@@ -97,9 +102,9 @@ public class RegularInvestService {
     return fetchRegularInvest(username, cryptoName, null);
   }
 
-  public String getFearIndex() throws IOException {
-    Document doc = Jsoup.connect("https://alternative.me/crypto/fear-and-greed-index/").get();
-    Elements elem = doc.selectXpath("//*[@id=\"main\"]/section/div/div[3]/div[2]/div/div/div[1]/div[2]/div");
-    return elem.text();
+  public String getFearIndex(){
+    return fearIndexRepository.GetFearIndex().orElseThrow(
+        () -> new AutoInvestException(ResultInfoConstants.FAIL_GETTING_INDEX)
+    );
   }
 }
