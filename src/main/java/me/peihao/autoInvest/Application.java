@@ -1,8 +1,11 @@
 package me.peihao.autoInvest;
 
+import me.peihao.autoInvest.repository.FearIndexRepository;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 @EnableFeignClients
@@ -12,21 +15,11 @@ public class Application {
 		SpringApplication.run(Application.class, args);
 	}
 
-	/* Print all Beans
 	@Bean
-	public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
+	public CommandLineRunner commandLineRunner(FearIndexRepository fearIndexRepository) {
 		return args -> {
-
-			System.out.println("Let's inspect the beans provided by Spring Boot:");
-
-			String[] beanNames = ctx.getBeanDefinitionNames();
-			Arrays.sort(beanNames);
-			for (String beanName : beanNames) {
-				System.out.println(beanName);
-			}
-
+			fearIndexRepository.UpdateFearIndex();
 		};
 	}
-	*/
 
 }

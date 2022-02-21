@@ -21,7 +21,6 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import me.peihao.autoInvest.constant.ResultInfoConstants;
 import me.peihao.autoInvest.dto.requests.PatchUserRequestDTO;
-import me.peihao.autoInvest.dto.response.TokenDTO;
 import me.peihao.autoInvest.exception.AutoInvestException;
 import me.peihao.autoInvest.service.AppUserService;
 import me.peihao.autoInvest.dto.requests.RegistrationUserRequestDTO;

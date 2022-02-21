@@ -1,29 +1,40 @@
 package me.peihao.autoInvest.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import me.peihao.autoInvest.constant.ResultInfoConstants;
 import me.peihao.autoInvest.constant.WeekDayEnum;
 import me.peihao.autoInvest.dto.requests.PutRegularInvestRequestDTO;
 import me.peihao.autoInvest.dto.requests.RegisterRegularInvestRequestDTO;
 import me.peihao.autoInvest.dto.response.FetchRegularInvestResponseDTO;
 import me.peihao.autoInvest.dto.response.PutRegularInvestResponseDTO;
 import me.peihao.autoInvest.dto.response.RegisterRegularInvestResponseDTO;
+import me.peihao.autoInvest.exception.AutoInvestException;
 import me.peihao.autoInvest.model.AppUser;
 import me.peihao.autoInvest.model.RegularInvest;
 import me.peihao.autoInvest.repository.AppUserRepository;
+import me.peihao.autoInvest.repository.FearIndexRepository;
 import me.peihao.autoInvest.repository.RegularInvestRepository;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class RegularInvestService {
 
   private final RegularInvestRepository regularInvestRepository;
   private final AppUserRepository appUserRepository;
+  private final FearIndexRepository fearIndexRepository;
 
   @Transactional
   public RegisterRegularInvestResponseDTO registerRegularInvest(String username,
@@ -89,5 +100,11 @@ public class RegularInvestService {
           weekday);
     }
     return fetchRegularInvest(username, cryptoName, null);
+  }
+
+  public String getFearIndex(){
+    return fearIndexRepository.GetFearIndex().orElseThrow(
+        () -> new AutoInvestException(ResultInfoConstants.FAIL_GETTING_INDEX)
+    );
   }
 }
