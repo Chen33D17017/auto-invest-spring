@@ -51,7 +51,7 @@ public class BinanceGatewayController {
   @PostMapping("/v2/order")
   public ResponseEntity<String> makerOderAndSave(
       Principal principal,
-      @Valid @RequestBody MakeOrderRequestDTO makeOrderRequestDTO) {
+      @Valid @RequestBody MakeOrderRequestDTO makeOrderRequestDTO ) {
     return generateSuccessResponse(
         binanceGatewayService.makeAndSaveOrder(principal.getName(), makeOrderRequestDTO));
   }
@@ -92,13 +92,15 @@ public class BinanceGatewayController {
             appUser.getApiKey()));
   }
 
+
   @PostMapping("/v1/migration")
-  public ResponseEntity<String> migrateHistory(
+  public ResponseEntity<String> migrateAllHistory(
       Principal principal,
       @RequestParam(name = "symbol") String symbol) {
     return generateSuccessResponse(
         binanceGatewayService.migrateTradeHistory(principal.getName(), symbol));
   }
+
 
   @GetMapping("/v1/profit")
   public ResponseEntity<String> getProfit(

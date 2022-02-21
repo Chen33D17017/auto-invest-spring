@@ -24,6 +24,7 @@ public class BinanceTradeHistoryRequestDTO {
     this.timestamp = new Timestamp(System.currentTimeMillis()).getTime();
   }
 
+
   @NotNull
   private String symbol;
 
