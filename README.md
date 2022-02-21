@@ -49,4 +49,3 @@ docker container run --network auto-invest_service-network -p 8080:8080 auto-inv
 - Swagger support
 - logging improvement
 - Adding Unit Test
-- Enhance user authentication for security

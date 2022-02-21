@@ -30,6 +30,7 @@ public class ResultInfoConstants {
     public static final ResultInfo TRADE_HISTORY_NOT_FOUND = new ResultInfo("01000003", "TRADE_HISTORY_NOT_FOUND", "Not found any records", "F");
     public static final ResultInfo CONFIRM_TOKEN_SET_ERROR = new ResultInfo("01000004", "CONFIRM_TOKEN_SET_ERROR", "Fail to set confirm token", "F");
     public static final ResultInfo CONFIRM_TOKEN_ERROR = new ResultInfo("01000005", "CONFIRM_TOKEN_SET_ERROR", "Fail to confirm token", "F");
+    public static final ResultInfo MISSING_REFRESH_TOKEN = new ResultInfo("01000006", "MISSING_REFRESH_TOKEN", "Missing refresh token", "F");
     private static final Map<String, ResultInfo> codeToResultInfo;
     private static final List<ResultInfo> ResultInfoList = new ArrayList<>();
     static {
