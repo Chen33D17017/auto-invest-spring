@@ -3,9 +3,11 @@ package me.peihao.autoInvest.service;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import lombok.AllArgsConstructor;
@@ -84,8 +86,21 @@ public class BinanceGatewayService {
             .build(), targetUser.getApiSecret(), targetUser.getApiKey()
     );
 
-    saveAfterOrder(targetUser, binanceResponse);
+    wait(500);
+    try {
+      migrateTradeHistory(username, request.getSymbol() + request.getBuy_from());
+    } catch (AutoInvestException ignore) {
+
+    }
     return binanceResponse;
+  }
+
+  public BinanceTradeHistoryResponseDTO[] migrateAllTradeHistory(String username, String symbol) {
+    AppUser targetUser = appUserRepository.findByUsername(username).orElseThrow(
+        () -> new UsernameNotFoundException("Fail to retrieve user")
+    );
+    BinanceTradeHistoryRequestDTO request = new BinanceTradeHistoryRequestDTO(symbol);
+    return saveOrders(targetUser, request);
   }
 
   public BinanceTradeHistoryResponseDTO[] migrateTradeHistory(String username, String symbol) {
@@ -93,7 +108,17 @@ public class BinanceGatewayService {
         () -> new UsernameNotFoundException("Fail to retrieve user")
     );
 
-    BinanceTradeHistoryRequestDTO request = new BinanceTradeHistoryRequestDTO(symbol);
+    LocalDateTime lastUpdatedTime = tradeHistoryRepository.findLastUpdatedHistoryTime(username, symbol);
+    BinanceTradeHistoryRequestDTO request;
+    if(Objects.nonNull(lastUpdatedTime)){
+      request = BinanceTradeHistoryRequestDTO.builder()
+          .symbol(symbol)
+          .startTime(lastUpdatedTime.atZone(
+              ZoneOffset.UTC).toInstant().toEpochMilli())
+          .timestamp(new Timestamp(System.currentTimeMillis()).getTime()).build();
+    } else {
+      request = new BinanceTradeHistoryRequestDTO(symbol);
+    }
     return saveOrders(targetUser, request);
   }
 
@@ -103,6 +128,10 @@ public class BinanceGatewayService {
     BinanceTradeHistoryResponseDTO prev = null;
     BinanceTradeHistoryResponseDTO[] histories = binanceFeign
         .getTradeHistory(request, targetUser.getApiSecret(), targetUser.getApiKey());
+    if(histories.length == 0){
+      log.warn("No result found");
+      throw new AutoInvestException(ResultInfoConstants.NO_HISTORY_FOUND);
+    }
     for (BinanceTradeHistoryResponseDTO history : histories) {
       if (prev == null) {
         prev = history;
