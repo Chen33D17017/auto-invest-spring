@@ -13,9 +13,10 @@ import me.peihao.autoInvest.dto.feign.requeset.BinanceTradeHistoryRequestDTO;
 import me.peihao.autoInvest.dto.requests.MakeOrderRequestDTO;
 import me.peihao.autoInvest.feign.BinanceFeign;
 import me.peihao.autoInvest.model.AppUser;
+import me.peihao.autoInvest.repository.AppUserRepository;
 import me.peihao.autoInvest.service.BinanceGatewayService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,14 +32,16 @@ import static me.peihao.autoInvest.common.ResultUtil.generateSuccessResponse;
 public class BinanceGatewayController {
 
   final private BinanceGatewayService binanceGatewayService;
+  final private AppUserRepository appUserRepository;
   final private BinanceFeign binanceFeign;
 
 
   // Order to Binance Directly
   @PostMapping("/v1/order")
   public ResponseEntity<String> makeOrder(
-      @AuthenticationPrincipal AppUser appUser,
+      Principal principal,
       @Valid @RequestBody BinanceOrderRequestDTO binanceOrderRequestDTO) {
+    AppUser appUser = getAppUser(principal.getName());
     return generateSuccessResponse(
         binanceFeign.newOrder(binanceOrderRequestDTO, appUser.getApiSecret(),
             appUser.getApiKey()));
@@ -55,10 +58,12 @@ public class BinanceGatewayController {
 
   @GetMapping("/v1/order")
   public ResponseEntity<String> fetchOrder(
-      @AuthenticationPrincipal AppUser appUser,
+      Principal principal,
       @RequestParam(name = "symbol") String symbol,
       @RequestParam(name = "orderId") Long orderId
-  ){
+  ) {
+
+    AppUser appUser = getAppUser(principal.getName());
     return generateSuccessResponse(
         binanceFeign.checkOrderStatus(new BinanceOrderStatusRequestDTO(symbol, orderId),
             appUser.getApiSecret(), appUser.getApiKey()));
@@ -66,8 +71,9 @@ public class BinanceGatewayController {
 
   @GetMapping("/v1/status")
   public ResponseEntity<String> checkStatus(
-      @AuthenticationPrincipal AppUser appUser) {
+      Principal principal) {
     BinanceTimestampRequestDTO requestQuery = new BinanceTimestampRequestDTO();
+    AppUser appUser = getAppUser(principal.getName());
     return generateSuccessResponse(
         binanceFeign.checkSpotAccountInfo(requestQuery, appUser.getApiSecret(),
             appUser.getApiKey()));
@@ -75,10 +81,12 @@ public class BinanceGatewayController {
 
   @GetMapping("/v1/history")
   public ResponseEntity<String> fetchHistory(
-      @AuthenticationPrincipal AppUser appUser,
-      @RequestParam(required = false, name = "symbol") String symbol){
+      Principal principal,
+      @RequestParam(required = false, name = "symbol") String symbol) {
     Long timestamp = new Timestamp(System.currentTimeMillis()).getTime();
-    BinanceTradeHistoryRequestDTO requestQuery = new BinanceTradeHistoryRequestDTO(symbol, timestamp);
+    BinanceTradeHistoryRequestDTO requestQuery = new BinanceTradeHistoryRequestDTO(symbol,
+        timestamp);
+    AppUser appUser = getAppUser(principal.getName());
     return generateSuccessResponse(
         binanceFeign.getTradeHistory(requestQuery, appUser.getApiSecret(),
             appUser.getApiKey()));
@@ -87,7 +95,7 @@ public class BinanceGatewayController {
   @PostMapping("/v1/migration")
   public ResponseEntity<String> migrateHistory(
       Principal principal,
-      @RequestParam(name = "symbol") String symbol){
+      @RequestParam(name = "symbol") String symbol) {
     return generateSuccessResponse(
         binanceGatewayService.migrateTradeHistory(principal.getName(), symbol));
   }
@@ -95,9 +103,14 @@ public class BinanceGatewayController {
   @GetMapping("/v1/profit")
   public ResponseEntity<String> getProfit(
       Principal principal,
-      @RequestParam(name = "crypto_name") String cryptoName){
+      @RequestParam(name = "crypto_name") String cryptoName) {
     return generateSuccessResponse(
         binanceGatewayService.getProfit(principal.getName(), cryptoName)
     );
+  }
+
+  private AppUser getAppUser(String username) {
+    return appUserRepository.findByUsername(username).orElseThrow(() ->
+        new UsernameNotFoundException(String.format("user %s not found", username)));
   }
 }
