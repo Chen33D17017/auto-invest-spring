@@ -1,15 +1,36 @@
 package me.peihao.autoInvest.controller;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.security.Principal;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.websocket.server.PathParam;
-import lombok.AllArgsConstructor;
 
 import static me.peihao.autoInvest.common.ResultUtil.generateSuccessResponse;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
+import me.peihao.autoInvest.constant.ResultInfoConstants;
 import me.peihao.autoInvest.dto.requests.PatchUserRequestDTO;
+import me.peihao.autoInvest.dto.response.TokenDTO;
+import me.peihao.autoInvest.exception.AutoInvestException;
 import me.peihao.autoInvest.service.AppUserService;
 import me.peihao.autoInvest.dto.requests.RegistrationUserRequestDTO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,10 +40,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(path = "/api")
-@AllArgsConstructor
 public class AppUserController {
 
   private final AppUserService appUserService;
+  private final String signSecret;
+
+  @Autowired
+  public AppUserController(AppUserService appUserService, @Value("jwt.sign-secret") String signSecret){
+    this.appUserService = appUserService;
+    this.signSecret = signSecret;
+  }
 
   @PostMapping("/v1/registration")
   public ResponseEntity<String> register(
@@ -50,5 +77,33 @@ public class AppUserController {
       @PathParam("username") String username){
     return generateSuccessResponse(
         appUserService.reissueConfirmationToken(username));
+  }
+
+  @GetMapping("/refresh/token")
+  public void refreshToken(HttpServletRequest request,
+      HttpServletResponse response) throws IOException {
+    String authorizationHeader = request.getHeader(AUTHORIZATION);
+    if (authorizationHeader != null && authorizationHeader.startsWith("Bearer")) {
+      String refreshToken = authorizationHeader.substring("Bearer".length()).trim();
+      Algorithm algorithm = Algorithm.HMAC256(signSecret.getBytes());
+      JWTVerifier verifier = JWT.require(algorithm).build();
+      DecodedJWT decodedJWT = verifier.verify(refreshToken);
+      String username = decodedJWT.getSubject();
+      UserDetails user = appUserService.loadUserByUsername(username);
+      String accessToken = JWT.create()
+          .withSubject(user.getUsername())
+          .withExpiresAt(new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMicros(10)))
+          .withIssuer("RegularInvestDAO")
+          .withClaim("roles",
+              user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(
+                  Collectors.toList())).sign(algorithm);
+      Map<String, String> tokens = new HashMap<>();
+      tokens.put("access_token", accessToken);
+      tokens.put("refresh_token", refreshToken);
+      response.setContentType(String.valueOf(MediaType.APPLICATION_JSON));
+      new ObjectMapper().writeValue(response.getOutputStream(), tokens);
+    } else {
+      throw new AutoInvestException(ResultInfoConstants.MISSING_REFRESH_TOKEN);
+    }
   }
 }
