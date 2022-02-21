@@ -95,6 +95,13 @@ public class BinanceGatewayService {
     return binanceResponse;
   }
 
+  public BinanceTradeHistoryResponseDTO[] migrateAllTradeHistory(String username, String symbol) {
+    AppUser targetUser = appUserRepository.findByUsername(username).orElseThrow(
+        () -> new UsernameNotFoundException("Fail to retrieve user")
+    );
+    BinanceTradeHistoryRequestDTO request = new BinanceTradeHistoryRequestDTO(symbol);
+    return saveOrders(targetUser, request);
+  }
 
   public BinanceTradeHistoryResponseDTO[] migrateTradeHistory(String username, String symbol) {
     AppUser targetUser = appUserRepository.findByUsername(username).orElseThrow(

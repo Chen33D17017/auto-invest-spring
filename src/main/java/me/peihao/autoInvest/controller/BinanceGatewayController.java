@@ -98,6 +98,14 @@ public class BinanceGatewayController {
       Principal principal,
       @RequestParam(name = "symbol") String symbol) {
     return generateSuccessResponse(
+        binanceGatewayService.migrateAllTradeHistory(principal.getName(), symbol));
+  }
+
+  @PostMapping("/v2/migration")
+  public ResponseEntity<String> migrateHistory(
+      Principal principal,
+      @RequestParam(name = "symbol") String symbol) {
+    return generateSuccessResponse(
         binanceGatewayService.migrateTradeHistory(principal.getName(), symbol));
   }
 
