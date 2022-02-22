@@ -51,7 +51,7 @@ public class CustomizeAuthenticationFilter extends UsernamePasswordAuthenticatio
     Algorithm algorithm = Algorithm.HMAC256(signSecret.getBytes());
     String access_token = JWT.create()
         .withSubject(user.getUsername())
-        .withExpiresAt(new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMicros(10)))
+        .withExpiresAt(new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(10)))
         .withIssuer("RegularInvestDAO")
         .withClaim("roles",
             user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(
@@ -59,7 +59,7 @@ public class CustomizeAuthenticationFilter extends UsernamePasswordAuthenticatio
 
     String refresh_token = JWT.create()
         .withSubject(user.getUsername())
-        .withExpiresAt(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMicros(1)))
+        .withExpiresAt(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1)))
         .withIssuer("RegularInvestDAO").sign(algorithm);
 
     Map<String, String> tokens = new HashMap<>();
