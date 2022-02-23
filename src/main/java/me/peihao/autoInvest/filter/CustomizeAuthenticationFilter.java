@@ -1,8 +1,11 @@
 package me.peihao.autoInvest.filter;
 
+import static me.peihao.autoInvest.common.ResultUtil.buildJson;
+
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.awt.image.RescaleOp;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.Date;
@@ -16,6 +19,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.peihao.autoInvest.constant.ResultInfoConstants;
+import me.peihao.autoInvest.dto.response.TokenDTO;
 import me.peihao.autoInvest.model.AppUser;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,6 +33,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Slf4j
 @AllArgsConstructor
 public class CustomizeAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+
   private final AuthenticationManager authenticationManager;
   private final String signSecret;
 
@@ -40,7 +46,8 @@ public class CustomizeAuthenticationFilter extends UsernamePasswordAuthenticatio
     String username = credential[0];
     String password = credential[1];
     log.info("User {} is trying to login", username);
-    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
+    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+        username, password);
     return authenticationManager.authenticate(authenticationToken);
   }
 
@@ -62,10 +69,10 @@ public class CustomizeAuthenticationFilter extends UsernamePasswordAuthenticatio
         .withExpiresAt(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1)))
         .withIssuer("RegularInvestDAO").sign(algorithm);
 
-    Map<String, String> tokens = new HashMap<>();
-    tokens.put("access_token", access_token);
-    tokens.put("refresh_token", refresh_token);
+    TokenDTO tokenDTO = TokenDTO.builder().accessToken(access_token).refreshToken(refresh_token)
+        .build();
+
     response.setContentType(String.valueOf(MediaType.APPLICATION_JSON));
-    new ObjectMapper().writeValue(response.getOutputStream(), tokens);
+    new ObjectMapper().writeValue(response.getOutputStream(), buildJson(ResultInfoConstants.SUCCESS,tokenDTO));
   }
 }

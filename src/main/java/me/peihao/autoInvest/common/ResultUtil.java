@@ -13,10 +13,14 @@ public class ResultUtil {
   }
 
   public static String buildResult(ResultInfo resultInfo, Object data) {
+    return convertToJsonString(buildJson(resultInfo, data));
+  }
+
+  public static JSONObject buildJson(ResultInfo resultInfo, Object data){
     JSONObject jsonObject = new JSONObject();
     jsonObject.put("resultInfo", resultInfo);
     jsonObject.put("data", data);
-    return convertToJsonString(jsonObject);
+    return jsonObject;
   }
 
   private static String convertToJsonString(Object object) {
