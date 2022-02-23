@@ -83,7 +83,7 @@ public class AppUserController {
         appUserService.reissueConfirmationToken(username));
   }
 
-  @GetMapping("/refresh/token")
+  @GetMapping("/v1/refresh/token")
   public void refreshToken(HttpServletRequest request,
       HttpServletResponse response) throws IOException {
     String authorizationHeader = request.getHeader(AUTHORIZATION);

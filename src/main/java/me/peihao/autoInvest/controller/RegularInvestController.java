@@ -20,12 +20,12 @@ import static me.peihao.autoInvest.common.ResultUtil.generateSuccessResponse;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/regular_invest")
+@RequestMapping("/api")
 public class RegularInvestController {
 
     private final RegularInvestService regularInvestService;
 
-    @PostMapping
+    @PostMapping("/v1/regular_invest")
     public ResponseEntity<String> registerRegularInvest(
         Principal principal,
         @Valid @RequestBody RegisterRegularInvestRequestDTO registerRegularInvestRequestDTO) {
@@ -33,7 +33,7 @@ public class RegularInvestController {
             .registerRegularInvest(principal.getName(), registerRegularInvestRequestDTO));
     }
 
-    @GetMapping
+    @GetMapping("/v1/regular_invest")
     public ResponseEntity<String> fetchRegularInvest(Principal principal,
         @RequestParam(required = false, name = "crypto_name") String cryptoName,
         @RequestParam(required = false, name = "weekday") String weekday) {
@@ -41,7 +41,7 @@ public class RegularInvestController {
             regularInvestService.fetchRegularInvest(principal.getName(), cryptoName, weekday));
     }
 
-    @PutMapping
+    @PutMapping("/v1/regular_invest")
     public ResponseEntity<String> updateRegularInvest(
         Principal principal,
         @RequestParam(name = "crypto_name") String cryptoName,
@@ -52,7 +52,7 @@ public class RegularInvestController {
     }
 
 
-    @DeleteMapping
+    @DeleteMapping("/v1/regular_invest")
     public ResponseEntity<String> deleteRegularInvest(
         Principal principal,
         @RequestParam(name = "crypto_name") String cryptoName,
@@ -63,7 +63,7 @@ public class RegularInvestController {
         );
     }
 
-    @GetMapping("/fear")
+    @GetMapping("/v1/fear")
     public ResponseEntity<String> getFearIndex() throws IOException {
         return generateSuccessResponse(
             regularInvestService.getFearIndex()

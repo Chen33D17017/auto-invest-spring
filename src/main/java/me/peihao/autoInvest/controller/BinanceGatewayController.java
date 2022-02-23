@@ -35,23 +35,11 @@ public class BinanceGatewayController {
   final private AppUserRepository appUserRepository;
   final private BinanceFeign binanceFeign;
 
-
-  // Order to Binance Directly
-  @PostMapping("/v1/order")
-  public ResponseEntity<String> makeOrder(
-      Principal principal,
-      @Valid @RequestBody BinanceOrderRequestDTO binanceOrderRequestDTO) {
-    AppUser appUser = getAppUser(principal.getName());
-    return generateSuccessResponse(
-        binanceFeign.newOrder(binanceOrderRequestDTO, appUser.getApiSecret(),
-            appUser.getApiKey()));
-  }
-
   // Order to Binance and save trading log to db
-  @PostMapping("/v2/order")
+  @PostMapping("/v1/order")
   public ResponseEntity<String> makerOderAndSave(
       Principal principal,
-      @Valid @RequestBody MakeOrderRequestDTO makeOrderRequestDTO ) {
+      @Valid @RequestBody MakeOrderRequestDTO makeOrderRequestDTO) {
     return generateSuccessResponse(
         binanceGatewayService.makeAndSaveOrder(principal.getName(), makeOrderRequestDTO));
   }
@@ -96,19 +84,16 @@ public class BinanceGatewayController {
   @PostMapping("/v1/migration")
   public ResponseEntity<String> migrateAllHistory(
       Principal principal,
-      @RequestParam(name = "symbol") String symbol) {
-    return generateSuccessResponse(
-        binanceGatewayService.migrateAllTradeHistory(principal.getName(), symbol));
+      @RequestParam(name = "symbol") String symbol,
+      @RequestParam(name = "all", required = false, defaultValue = "false") boolean all) {
+    if(all){
+      return generateSuccessResponse(
+          binanceGatewayService.migrateAllTradeHistory(principal.getName(), symbol));
+    } else {
+      return generateSuccessResponse(
+          binanceGatewayService.migrateTradeHistory(principal.getName(), symbol));
+    }
   }
-
-  @PostMapping("/v2/migration")
-  public ResponseEntity<String> migrateHistory(
-      Principal principal,
-      @RequestParam(name = "symbol") String symbol) {
-    return generateSuccessResponse(
-        binanceGatewayService.migrateTradeHistory(principal.getName(), symbol));
-  }
-
 
   @GetMapping("/v1/profit")
   public ResponseEntity<String> getProfit(
