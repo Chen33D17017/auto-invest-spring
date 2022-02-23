@@ -1,0 +1,909 @@
+openapi: 3.0.0
+info:
+  title: Auto Investment API
+  description: All APIs related to Auto Investment Service, Now the service is all based on Binance
+  version: 0.0.1
+servers:
+  - url: http://localhost/api
+    description: Local Host
+tags:
+  - name: App User Controller
+    description: All api related to charge code
+  - name: Binance Gateway Controller
+    description: Call Binance api
+  - name: Regular Invest Controller
+    description: All api related to regular invest to Binance
+paths:
+  /v1/login:
+    get:
+      tags:
+        - App User Controller
+      summary: Login for geting JWT token, please provide your credential on Basic Auth
+      security: 
+        - BasicAuth: []
+      parameters:
+        - in: query
+          name: request_id
+          schema:
+            type: integer
+          description: Request Id of charge code
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/LoginResponseDTO'
+                  resultInfo:
+                    $ref: '#/components/schemas/SuccessResultInfo'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+  /v1/registration:
+    post:
+      tags:
+        - App User Controller
+      summary: Registrate user
+      security: 
+        - BearerAuth: []
+      parameters:
+        - in: header
+          name: device-id
+          schema:
+            type: string
+          required: false
+      requestBody:
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/RegistrationRequestDTO'
+      
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RegistrationResponseDTO'
+                  resultInfo:
+                    $ref: '#/components/schemas/SuccessResultInfo'
+        '400':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+  /v1/registration/confirm:
+    get:
+      tags:
+        - App User Controller
+      summary: This api should be used by admin, confirm the token to enable the registration user
+      security: 
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: token
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  data:
+                    type: string
+                    example: success
+                  resultInfo:
+                    $ref: '#/components/schemas/SuccessResultInfo'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+  /v1/user:
+    patch:
+      tags:
+        - App User Controller
+      summary: Update user info
+      security: 
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/UpdateUserInfoRequestDTO'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/UserResponseDTO'
+                  resultInfo:
+                    $ref: '#/components/schemas/SuccessResultInfo'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+    get:
+      tags:
+       - App User Controller
+      summary: Get user info
+      security: 
+        - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/UserResponseDTO'
+                  resultInfo:
+                    $ref: '#/components/schemas/SuccessResultInfo'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+  /v1/reissue:
+    post:
+      tags:
+        - App User Controller
+      summary: Reissue registration token
+      security: 
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: username
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RegistrationResponseDTO'
+                  resultInfo:
+                    $ref: '#/components/schemas/SuccessResultInfo'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+  /v1/refresh/token:
+    get:
+      tags:
+        - App User Controller
+      security: 
+        - BearerAuth: []
+      summary: Refresh JWT token
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      charge_code_list:
+                        $ref: '#/components/schemas/LoginResponseDTO'
+                  resultInfo:
+                    $ref: '#/components/schemas/SuccessResultInfo'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+  /v1/status:
+    get:
+      tags:
+        - Binance Gateway Controller
+      summary: Get Binance user status
+      security: 
+        - BearerAuth: [admin]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/BinanceStatusResponseDTO'
+                  resultInfo:
+                    $ref: '#/components/schemas/SuccessResultInfo'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+  /v1/history:
+    get:
+      tags:
+        - Binance Gateway Controller
+      summary: Get trade history from Binance
+      security: 
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: symbol
+          required: false
+          schema:
+            type: string
+            example: BTCBUSD
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/BinanceHistoryResponseDTO'
+                  resultInfo:
+                    $ref: '#/components/schemas/SuccessResultInfo'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+  /v1/migration:
+    patch:
+      tags:
+        - Binance Gateway Controller
+      summary: migration history data from Binance to service
+      description: If request with all, the migration will depends on user last history time on service db. If the all is false, it will migrate all related trading history from Binance 
+        to service db
+      security: 
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: symbol
+          required: true
+          schema:
+            type: string
+            example: BTCBUSD
+        - in: query
+          name: all
+          required: false
+          schema:
+            type: boolean
+            example: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/BinanceHistoryResponseDTO'
+                  resultInfo:
+                    $ref: '#/components/schemas/SuccessResultInfo'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+  /v1/profit:
+    get:
+      tags:
+        - Binance Gateway Controller
+      summary: Compute user profit on specific symbol
+      description:
+        The profit will count base on pair which contains stable coin BUSD, USDT, UST.
+        Please make sure you have migrated the data from Binance to service db.
+      security: 
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: crypto_name
+          required: true
+          schema:
+            type: string
+            example: BTC
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/BinanceProfitResponseDTO'
+                  resultInfo:
+                    $ref: '#/components/schemas/SuccessResultInfo'
+        '401':
+          description: Unauthorized
+        '400':
+          description: Bad request
+        '500':
+          description: Internal Server Error
+  /v1/order:
+    post:
+      tags:
+        - Binance Gateway Controller
+      summary: Order to Binance & update service db after, will be order on taker.
+      security: 
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/BinanceRequestDTO'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/BinanceOrderResponseDTO'
+                  resultInfo:
+                    $ref: '#/components/schemas/SuccessResultInfo'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+    get:
+      tags:
+        - Binance Gateway Controller
+      summary: Get order information from Binance
+      security: 
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: symbol
+          required: true
+          schema:
+            type: string
+            example: BTC
+        - in: query  
+          name: orderId
+          required: true
+          schema:
+            type: integer
+            example: 24333194
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/BinanceOrderResponseDTO'
+                  resultInfo:
+                    $ref: '#/components/schemas/SuccessResultInfo'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+          
+  /v1/regular_invest:
+    post:
+      tags:
+        - Regular Invest Controller
+      summary: Register regular invest
+      security: 
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/RegisterRegularInvestRequestDTO'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RegisterRegularInvestRequestDTO'
+                  resultInfo:
+                    $ref: '#/components/schemas/SuccessResultInfo'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+    get:
+      tags: 
+        - Regular Invest Controller
+      summary: Fetch all regular invest information
+      security: 
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: weekday
+          required: false
+          schema:
+            type: string
+            example: MON
+        - in: query  
+          name: crypto_name
+          required: false
+          schema:
+            type: string
+            example: DOT
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RegisterRegularInvestResponseDTO'
+                  resultInfo:
+                    $ref: '#/components/schemas/SuccessResultInfo'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+    put:
+      tags: 
+        - Regular Invest Controller
+      summary: Fetch all regular invest information
+      security: 
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: crypto_name
+          required: true
+          schema:
+            type: string
+            example: BTC
+      requestBody:
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/PutRegularInvestResponseDTO'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RegisterRegularInvestResponseDTO'
+                  resultInfo:
+                    $ref: '#/components/schemas/SuccessResultInfo'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+    delete:
+      tags: 
+        - Regular Invest Controller
+      summary: Delete specific regular invest information
+      security: 
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: crypto_name
+          required: true
+          schema:
+            type: string
+            example: BTC
+        - in: query
+          name: weekday
+          required: false
+          schema:
+            $ref: '#/components/schemas/Weekday'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RegisterRegularInvestResponseDTO'
+                  resultInfo:
+                    $ref: '#/components/schemas/SuccessResultInfo'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+  /v1/fear:
+    get:
+      tags:
+        - Regular Invest Controller
+      summary: Get fear index now
+      security: 
+        - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  data:
+                    type: string
+                    example: "20"
+                  resultInfo:
+                    $ref: '#/components/schemas/SuccessResultInfo'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+    BasicAuth:     # <-- arbitrary name for the security scheme
+      type: http
+      scheme: basic
+  schemas:
+    SuccessResultInfo:
+      type: object
+      properties:
+        code: 
+          type: string
+          example: SUCCESS
+        codeId:
+          type: string
+          example: "00000000"
+        message:
+          type: string
+          example: "Successful Request"
+        status:
+          type: string
+          example: "S"
+    
+    LoginResponseDTO:
+      type: object
+      properties:
+        access_token: 
+          type: string
+          example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsInJvbGVzIjpbIlVTRVIiXSwiaXNzIjoiUmVndWxhckludmVzdERBTyIsImV4cCI6MTY0NTYwNDM5Mn0.mL2CbBHG89ASGV7xErVxHghlk_pZxLzBeDFOrKo88LQ
+        refresh_token:
+          type: string
+          example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlzcyI6IlJlZ3VsYXJJbnZlc3REQU8iLCJleHAiOjE2NDU2OTAxOTJ9.VS5fewnqfSmSRjd0zwiYqbIiQdocVEGYIDKn0jIUXVM
+
+    BinanceStatusResponseDTO:
+      type: object
+      properties:
+        balances:
+          type: array
+          items: 
+            type: object
+            properties:
+              asset:
+                type: string
+                example: BTC
+              free:
+                type: number
+                format: float
+                example: 0.0
+              locked:
+                type: number
+                format: float
+                example: 0.0
+                
+    BinanceHistoryResponseDTO:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 13932916
+          isBuyer:
+            type: boolean
+            example: true
+          orderId:
+            type: integer
+            example: 227560918
+          price:
+            type: number
+            format: float
+            example: 29.2
+          qty:
+            type: number
+            format: float
+            example: 11.98
+          symbol:
+            type: string
+            example: ATOMBUSD
+          time:
+            type: integer
+            example: 1640344065859
+            
+    BinanceProfitResponseDTO:
+      properties:
+        crypto_name:
+          type: string
+          example: BTC
+        amount:
+          type: number
+          format: float
+          example: 0.031372998
+        total_cost:
+          type: number
+          format: flaot
+          example: 1127.9774
+        average_price:
+          type: number
+          format: float
+          example: 35953.766
+        profit_rate:
+          type: string
+          example: "8.23%"
+        price_now:
+          type: number
+          format: float
+          example: 38913.51
+    BinanceRequestDTO:
+      properties:
+        symbol:
+          type: string
+          example: "BTC"
+        side:
+          type: string
+          example: "buy"
+        buy_from:
+          type: string
+          example: "BUSD"
+        amount:
+          type: number
+          format: float
+          example: 0.001
+            
+    SendChargeCodeGroupFileRequestDTO:
+      type: object
+      required:
+        - group_id
+        - request_id
+      properties:
+        group_id:
+          type: integer
+          format: int64
+          maximum: 9223372036854776000
+          exclusiveMaximum: false
+        request_id:
+          type: string
+      title: SendChargeCodeGroupFileRequestDTO
+    RegistrationRequestDTO:
+      type: object
+      required:
+        - name
+        - username
+        - email
+        - password
+        - apiKey
+        - apiSecret
+      properties:
+        name:
+          type: string
+          example: Test
+        username:
+          type: string
+          example: test_user
+        email:
+          type: string
+          example: testuser@email.com
+        password:
+          type: string
+          example: password
+        apiKey:
+          type: string
+          example: binance_api_key
+        apiSecret:
+          type: string
+          example: binance_api_secret
+          
+    UpdateUserInfoRequestDTO:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Test
+        username:
+          type: string
+          example: test_user
+        email:
+          type: string
+          format: email
+          example: testuser@email.com
+        password:
+          type: string
+          example: password
+        apiKey:
+          type: string
+          example: binance_api_key
+        apiSecret:
+          type: string
+          example: binance_api_secret
+          
+    RegistrationResponseDTO:
+      type: object
+      properties:
+        name:
+          type: string
+          example: user
+        username:
+          type: string
+          example: username
+        email:
+          type: string
+          format: email
+          example: testuser@email.com
+        confrimToken:
+          type: string
+          example: 827b60ae-a01d-4265-b806-c64e9763a562
+          
+    UserResponseDTO:
+      type: object
+      properties:
+        name:
+          type: string
+          example: user
+        username:
+          type: string
+          example: username
+        email:
+          type: string
+          format: email
+          example: testuser@email.com
+    
+    BinanceOrderResponseDTO:
+      type: object
+      properties:
+        clientOrderId:
+          type: string
+          example: "fx9JcISVaDSB3MNdlfZlwZ"
+        executedQty:
+          type: number
+          format: float
+          example: 3.9
+        orderId:
+          type: integer
+          example: 24333194
+        origQty:
+          type: number
+          format: float
+          example: 3.9
+        price:
+          type: number
+          format: float
+          example: 0.0
+        side:
+          type: string
+          example: "BUY"
+        status:
+          type: string
+          example: "FILLED"
+        symbol:
+          type: string
+          example: "GLMRBUSD"
+        transactTime:
+          type: number
+          example: 1645612690893
+    
+    RegisterRegularInvestRequestDTO:
+      type: object
+      required:
+        - weekdays
+        - crypto_name
+        - buy_from
+        - amount
+      properties:
+        weekdays:
+          type: array
+          items:
+            $ref: '#/components/schemas/Weekday'
+        crypto_name:
+          type: string
+          example: GLMR
+        buy_from:
+          type: string
+          example: BUSD
+        amount:
+          type: number
+          format: float
+          example: 10
+          
+    RegisterRegularInvestResponseDTO:
+      type: object
+      properties:
+        regularInvests:
+          type: array
+          items: 
+            type: object
+            properties:
+              amount:
+                type: number
+                format: float
+                example: 10.0
+              buyFrom:
+                type: string
+                example: BUSD
+              cryptoName:
+                type: string
+                example: BTC
+              weekdays:
+                $ref: '#/components/schemas/Weekday'
+    
+    PutRegularInvestResponseDTO:
+      type: object
+      properties:
+        regularInvests:
+          type: array
+          items: 
+            type: object
+            properties:
+              amount:
+                type: number
+                format: float
+                example: 10.0
+              buyFrom:
+                type: string
+                example: BUSD
+              weekdays:
+                $ref: '#/components/schemas/Weekday'
+                
+    Weekday:
+      type: string
+      enum:
+        - MON
+        - TUE
+        - WED
+        - THU
+        - FRI
+        - SAT
+        - SUN
