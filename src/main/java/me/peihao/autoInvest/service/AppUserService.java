@@ -61,7 +61,7 @@ public class AppUserService implements UserDetailsService {
     boolean userExists = appUserRepository.findByUsername(appUser.getUsername())
         .isPresent();
     if (userExists) {
-      throw new IllegalStateException("userName already taken");
+      throw new IllegalStateException("username already taken");
     }
 
     String encodedPassword = bCryptPasswordEncoder.encode(appUser.getPassword());
@@ -77,7 +77,7 @@ public class AppUserService implements UserDetailsService {
 
 
     return RegistrationUserResponseDTO.builder()
-        .userName(appUser.getUsername())
+        .username(appUser.getUsername())
         .name(appUser.getName())
         .email(appUser.getEmail())
         .confirmToken(token)
@@ -88,7 +88,7 @@ public class AppUserService implements UserDetailsService {
     return signUpUser(
         new AppUser(
             requestDTO.getName(),
-            requestDTO.getUserName(),
+            requestDTO.getUsername(),
             requestDTO.getEmail(),
             requestDTO.getPassword(),
             requestDTO.getApiKey(),
@@ -106,7 +106,7 @@ public class AppUserService implements UserDetailsService {
     confirmationTokenRepository.setConfirmToken(token, username);
 
     return RegistrationUserResponseDTO.builder()
-        .userName(targetUser.getUsername())
+        .username(targetUser.getUsername())
         .name(targetUser.getName())
         .email(targetUser.getEmail())
         .confirmToken(token)
@@ -150,7 +150,7 @@ public class AppUserService implements UserDetailsService {
 
 
     appUserRepository.save(appUser);
-    return PatchUserResponseDTO.builder().userName(appUser.getUsername()).email(appUser.getEmail())
+    return PatchUserResponseDTO.builder().username(appUser.getUsername()).email(appUser.getEmail())
         .name(appUser.getName()).build();
   }
 

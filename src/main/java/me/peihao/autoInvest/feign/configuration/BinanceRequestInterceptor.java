@@ -28,7 +28,7 @@ public class BinanceRequestInterceptor implements RequestInterceptor {
 
   private static String getQueryLineWithoutQuestionMark(RequestTemplate template) {
     final String queryLineWithoutQuestionMark = template.queryLine().substring(1);
-    log.info("Request Params: {}", queryLineWithoutQuestionMark);
+    log.debug("Request Params: {}", queryLineWithoutQuestionMark);
     return template.queryLine().substring(1);
   }
 }

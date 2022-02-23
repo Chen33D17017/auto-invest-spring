@@ -10,7 +10,7 @@ import me.peihao.autoInvest.model.AppUser;
 @NoArgsConstructor
 public class GetUserResponseDTO {
   private String name;
-  private String userName;
+  private String username;
   private String email;
 
   public static GetUserResponseDTO generateUserResponseDTO(AppUser appUser){

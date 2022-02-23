@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class RegistrationUserResponseDTO {
   private String name;
-  private String userName;
+  private String username;
   private String email;
 
   // delete it later

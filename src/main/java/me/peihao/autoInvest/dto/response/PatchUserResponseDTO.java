@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PatchUserResponseDTO {
   private String name;
-  private String userName;
+  private String username;
   private String email;
 }
