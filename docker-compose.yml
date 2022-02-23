@@ -1,7 +1,7 @@
 version: '3'
 services:
   service-db:
-    image: "mysql:5.7.16"
+    image: "biarms/mysql:5"
     container_name: service-db
     networks:
       - service-network
@@ -12,7 +12,7 @@ services:
     command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
     environment:
       - MYSQL_DATABASE=crypto-db
-      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_ROOT_PASSWORD=taiwanhot
       - MYSQL_USER=user
       - MYSQL_PASSWORD=password
   redis:
