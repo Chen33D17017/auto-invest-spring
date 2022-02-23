@@ -46,6 +46,5 @@ docker container run --network auto-invest_service-network -p 8080:8080 auto-inv
 ## TODO 
 - Unit Test support
 - Ip Whitelist Management
-- Swagger support
 - logging improvement
 - Adding Unit Test
