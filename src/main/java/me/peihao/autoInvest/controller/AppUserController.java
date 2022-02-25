@@ -89,6 +89,6 @@ public class AppUserController {
             user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(
                 Collectors.toList())).sign(algorithm);
     return generateSuccessResponse(
-        TokenResponseDTO.builder().accessToken(accessToken).refreshToken(refreshToken));
+        TokenResponseDTO.builder().accessToken(accessToken).refreshToken(refreshToken).build());
   }
 }
