@@ -66,6 +66,8 @@ public class RegularInvestTask {
             .format("%s fail to execute the regular invest: %s",
                 regularInvest.getAppUser().getName(), e.getMessage())));
         log.error("{}", String.valueOf(e));
+      } catch (Exception e){
+        log.error("Unexpected Error: {}", e.getMessage());
       }
     }
   }
