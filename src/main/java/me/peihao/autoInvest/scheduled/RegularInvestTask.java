@@ -13,6 +13,7 @@ import me.peihao.autoInvest.dto.feign.requeset.DiscordMessageRequestDTO;
 import me.peihao.autoInvest.dto.feign.response.BinanceOrderResponseDTO;
 import me.peihao.autoInvest.dto.requests.MakeOrderRequestDTO;
 import me.peihao.autoInvest.dto.response.GetProfitResponseDTO;
+import me.peihao.autoInvest.exception.AutoInvestException;
 import me.peihao.autoInvest.exception.BinanceFeignException;
 import me.peihao.autoInvest.feign.DiscordFeign;
 import me.peihao.autoInvest.model.RegularInvest;
@@ -60,7 +61,7 @@ public class RegularInvestTask {
         TimeUnit.SECONDS.sleep(1);
       } catch (InterruptedException e) {
         log.error("Fail to wait for next regular invest");
-      } catch (BinanceFeignException e) {
+      } catch (AutoInvestException e) {
         discordFeign.sendWebhook(errorWebhookId, new DiscordMessageRequestDTO(String
             .format("%s fail to execute the regular invest: %s",
                 regularInvest.getAppUser().getName(), e.getMessage())));
