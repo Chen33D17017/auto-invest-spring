@@ -1,5 +1,6 @@
 package me.peihao.autoInvest.dto.response;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -13,13 +14,10 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PutRegularInvestResponseDTO {
 
-    @JsonProperty("crypto_name")
     private String cryptoName;
 
-    @JsonProperty("weekdays")
     private List<String> weekdays;
 
-    @JsonProperty("buy_from")
     private String buyFrom;
 
     private Float amount;

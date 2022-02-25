@@ -17,7 +17,6 @@ public class PutRegularInvestRequestDTO {
     private List<String> weekdays;
 
     @NotNull
-    @JsonProperty("buy_from")
     private String buyFrom;
 
     @NotNull

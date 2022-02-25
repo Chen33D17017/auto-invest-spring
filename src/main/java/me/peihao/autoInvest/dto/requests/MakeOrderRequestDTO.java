@@ -1,5 +1,6 @@
 package me.peihao.autoInvest.dto.requests;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Value;
 
@@ -8,6 +9,6 @@ import lombok.Value;
 public class MakeOrderRequestDTO {
   String symbol;
   String side;
-  String buy_from;
+  String buyFrom;
   Float amount;
 }

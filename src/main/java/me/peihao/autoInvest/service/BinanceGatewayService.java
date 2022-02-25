@@ -54,14 +54,14 @@ public class BinanceGatewayService {
     );
 
     // check balance is enough or not, if not, redeem from flexible product
-    Float balance = getSymbolBalance(targetUser, request.getBuy_from());
+    Float balance = getSymbolBalance(targetUser, request.getBuyFrom());
     if (balance < request.getAmount()) {
       Float needAmount = request.getAmount() - balance + 1;
       log.info("User's balance: {}, try to find remain amount {} from flexible product", balance,
           needAmount);
       BinanceFlexibleProductPositionResponseDTO[] flexibleAssets = binanceFeign
           .getFlexibleProductPosition(new BinanceFlexibleProductPositionRequestDTO(
-              request.getBuy_from()), targetUser.getApiSecret(), targetUser.getApiKey());
+              request.getBuyFrom()), targetUser.getApiSecret(), targetUser.getApiKey());
 
       BinanceFlexibleProductPositionResponseDTO availableProduct = Arrays.stream(flexibleAssets)
           .filter(f -> f.getFreeAmount() > needAmount).findAny().orElseThrow(
@@ -78,7 +78,7 @@ public class BinanceGatewayService {
 
     BinanceOrderResponseDTO binanceResponse = binanceFeign.newOrder(
         BinanceOrderRequestDTO.builder()
-            .symbol(request.getSymbol() + request.getBuy_from())
+            .symbol(request.getSymbol() + request.getBuyFrom())
             .side("BUY")
             .type("MARKET")
             .quoteOrderQty(request.getAmount())
@@ -88,7 +88,7 @@ public class BinanceGatewayService {
 
     wait(500);
     try {
-      migrateTradeHistory(username, request.getSymbol() + request.getBuy_from());
+      migrateTradeHistory(username, request.getSymbol() + request.getBuyFrom());
     } catch (AutoInvestException ignore) {
 
     }

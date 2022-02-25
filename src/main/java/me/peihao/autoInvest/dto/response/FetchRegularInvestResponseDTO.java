@@ -1,5 +1,6 @@
 package me.peihao.autoInvest.dto.response;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;

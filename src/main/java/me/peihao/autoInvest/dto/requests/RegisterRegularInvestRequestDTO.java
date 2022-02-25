@@ -14,11 +14,9 @@ public class RegisterRegularInvestRequestDTO {
     List<String> weekdays;
 
     @NotNull(message = "This field cannot be null")
-    @JsonProperty("crypto_name")
     String cryptoName;
 
     @NotNull
-    @JsonProperty("buy_from")
     String buyFrom;
 
     @NotNull

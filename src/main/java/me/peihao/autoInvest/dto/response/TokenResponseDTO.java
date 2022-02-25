@@ -1,5 +1,6 @@
 package me.peihao.autoInvest.dto.response;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,8 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class TokenResponseDTO {
 
-  @JsonProperty("access_token")
   String accessToken;
-  @JsonProperty("refresh_token")
+
   String refreshToken;
 }

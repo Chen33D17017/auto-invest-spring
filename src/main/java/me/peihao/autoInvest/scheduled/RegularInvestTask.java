@@ -1,6 +1,5 @@
 package me.peihao.autoInvest.scheduled;
 
-import feign.FeignException;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -14,7 +13,6 @@ import me.peihao.autoInvest.dto.feign.response.BinanceOrderResponseDTO;
 import me.peihao.autoInvest.dto.requests.MakeOrderRequestDTO;
 import me.peihao.autoInvest.dto.response.GetProfitResponseDTO;
 import me.peihao.autoInvest.exception.AutoInvestException;
-import me.peihao.autoInvest.exception.BinanceFeignException;
 import me.peihao.autoInvest.feign.DiscordFeign;
 import me.peihao.autoInvest.model.RegularInvest;
 import me.peihao.autoInvest.repository.RegularInvestRepository;
@@ -77,7 +75,7 @@ public class RegularInvestTask {
         regularInvest.getCryptoName(), regularInvest.getAmount());
       MakeOrderRequestDTO makerOrderRequest = MakeOrderRequestDTO.builder()
           .symbol(regularInvest.getCryptoName())
-          .buy_from(regularInvest.getBuyFrom())
+          .buyFrom(regularInvest.getBuyFrom())
           .side("BUY")
           .amount(regularInvest.getAmount())
           .build();
