@@ -4,32 +4,21 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import java.security.Principal;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.websocket.server.PathParam;
 
-import static me.peihao.autoInvest.common.ResultUtil.buildJson;
 import static me.peihao.autoInvest.common.ResultUtil.generateSuccessResponse;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-import me.peihao.autoInvest.constant.ResultInfoConstants;
 import me.peihao.autoInvest.dto.requests.PatchUserRequestDTO;
 import me.peihao.autoInvest.dto.requests.RefreshTokenDTO;
-import me.peihao.autoInvest.dto.response.TokenDTO;
-import me.peihao.autoInvest.exception.AutoInvestException;
+import me.peihao.autoInvest.dto.response.TokenResponseDTO;
 import me.peihao.autoInvest.service.AppUserService;
 import me.peihao.autoInvest.dto.requests.RegistrationUserRequestDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -100,6 +89,6 @@ public class AppUserController {
             user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(
                 Collectors.toList())).sign(algorithm);
     return generateSuccessResponse(
-        TokenDTO.builder().accessToken(accessToken).refreshToken(refreshToken));
+        TokenResponseDTO.builder().accessToken(accessToken).refreshToken(refreshToken));
   }
 }
