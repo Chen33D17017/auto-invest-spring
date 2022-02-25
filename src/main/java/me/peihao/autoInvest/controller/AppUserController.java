@@ -22,6 +22,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import me.peihao.autoInvest.constant.ResultInfoConstants;
 import me.peihao.autoInvest.dto.requests.PatchUserRequestDTO;
+import me.peihao.autoInvest.dto.requests.RefreshTokenDTO;
 import me.peihao.autoInvest.dto.response.TokenDTO;
 import me.peihao.autoInvest.exception.AutoInvestException;
 import me.peihao.autoInvest.service.AppUserService;
@@ -84,29 +85,21 @@ public class AppUserController {
   }
 
   @GetMapping("/v1/refresh/token")
-  public void refreshToken(HttpServletRequest request,
-      HttpServletResponse response) throws IOException {
-    String authorizationHeader = request.getHeader(AUTHORIZATION);
-    if (authorizationHeader != null && authorizationHeader.startsWith("Bearer")) {
-      String refreshToken = authorizationHeader.substring("Bearer".length()).trim();
-      Algorithm algorithm = Algorithm.HMAC256(signSecret.getBytes());
-      JWTVerifier verifier = JWT.require(algorithm).build();
-      DecodedJWT decodedJWT = verifier.verify(refreshToken);
-      String username = decodedJWT.getSubject();
-      UserDetails user = appUserService.loadUserByUsername(username);
-      String accessToken = JWT.create()
-          .withSubject(user.getUsername())
-          .withExpiresAt(new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMicros(10)))
-          .withIssuer("RegularInvestDAO")
-          .withClaim("roles",
-              user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(
-                  Collectors.toList())).sign(algorithm);
-      TokenDTO tokenDTO = TokenDTO.builder().accessToken(accessToken).refreshToken(refreshToken)
-          .build();
-      response.setContentType(String.valueOf(MediaType.APPLICATION_JSON));
-      new ObjectMapper().writeValue(response.getOutputStream(), buildJson(ResultInfoConstants.SUCCESS,tokenDTO));
-    } else {
-      throw new AutoInvestException(ResultInfoConstants.MISSING_REFRESH_TOKEN);
-    }
+  public ResponseEntity<String> refreshToken(@RequestBody RefreshTokenDTO refreshTokenDTO) {
+    String refreshToken = refreshTokenDTO.getRefreshToken();
+    Algorithm algorithm = Algorithm.HMAC256(signSecret.getBytes());
+    JWTVerifier verifier = JWT.require(algorithm).build();
+    DecodedJWT decodedJWT = verifier.verify(refreshToken);
+    String username = decodedJWT.getSubject();
+    UserDetails user = appUserService.loadUserByUsername(username);
+    String accessToken = JWT.create()
+        .withSubject(user.getUsername())
+        .withExpiresAt(new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMicros(10)))
+        .withIssuer("RegularInvestDAO")
+        .withClaim("roles",
+            user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(
+                Collectors.toList())).sign(algorithm);
+    return generateSuccessResponse(
+        TokenDTO.builder().accessToken(accessToken).refreshToken(refreshToken));
   }
 }
