@@ -33,6 +33,7 @@ public class ResultInfoConstants {
     public static final ResultInfo MISSING_REFRESH_TOKEN = new ResultInfo("01000006", "MISSING_REFRESH_TOKEN", "Missing refresh token", "F");
     public static final ResultInfo FAIL_GETTING_INDEX = new ResultInfo("010000007", "FAIL_GETTING_INDEX", "Fail to get fear index", "F");
     public static final ResultInfo NO_HISTORY_FOUND = new ResultInfo("010000008", "NO_HISTORY_FOUND", "No history found", "F");
+    public static final ResultInfo INVALID_TOKEN = new ResultInfo("010000009", "INVALID_TOKEN", "invalid token", "F");
     private static final Map<String, ResultInfo> codeToResultInfo;
     private static final List<ResultInfo> ResultInfoList = new ArrayList<>();
     static {

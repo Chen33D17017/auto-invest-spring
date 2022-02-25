@@ -15,6 +15,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import me.peihao.autoInvest.constant.ResultInfoConstants;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import static java.util.Arrays.stream;
+import static me.peihao.autoInvest.common.ResultUtil.buildJson;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 
@@ -58,11 +60,10 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
           filterChain.doFilter(request, response);
         } catch (Exception exception) {
           log.error("Error logging in : {}", exception.getMessage());
-          Map<String, String> error = new HashMap<>();
-          error.put("error_message", exception.getMessage());
           response.setStatus(FORBIDDEN.value());
           response.setContentType(String.valueOf(MediaType.APPLICATION_JSON));
-          new ObjectMapper().writeValue(response.getOutputStream(), error);
+          new ObjectMapper().writeValue(response.getOutputStream(),
+              buildJson(ResultInfoConstants.INVALID_TOKEN, exception.getMessage()));
         }
       } else {
         filterChain.doFilter(request, response);
