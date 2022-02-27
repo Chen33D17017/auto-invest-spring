@@ -12,13 +12,13 @@ import javax.websocket.server.PathParam;
 
 import static me.peihao.autoInvest.common.ResultUtil.generateSuccessResponse;
 
+import lombok.AllArgsConstructor;
+import me.peihao.autoInvest.service.TokenService;
 import me.peihao.autoInvest.dto.requests.PatchUserRequestDTO;
 import me.peihao.autoInvest.dto.requests.RefreshTokenDTO;
 import me.peihao.autoInvest.dto.response.TokenResponseDTO;
 import me.peihao.autoInvest.service.AppUserService;
 import me.peihao.autoInvest.dto.requests.RegistrationUserRequestDTO;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,18 +30,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping(path = "/api")
 public class AppUserController {
 
   private final AppUserService appUserService;
-  private final String signSecret;
-
-  @Autowired
-  public AppUserController(AppUserService appUserService,
-      @Value("jwt.sign-secret") String signSecret) {
-    this.appUserService = appUserService;
-    this.signSecret = signSecret;
-  }
+  private final TokenService tokenService;
 
   @PostMapping("/v1/registration")
   public ResponseEntity<String> register(
@@ -75,20 +69,6 @@ public class AppUserController {
 
   @PostMapping("/v1/refresh/token")
   public ResponseEntity<String> refreshToken(@RequestBody RefreshTokenDTO refreshTokenDTO) {
-    String refreshToken = refreshTokenDTO.getRefreshToken();
-    Algorithm algorithm = Algorithm.HMAC256(signSecret.getBytes());
-    JWTVerifier verifier = JWT.require(algorithm).build();
-    DecodedJWT decodedJWT = verifier.verify(refreshToken);
-    String username = decodedJWT.getSubject();
-    UserDetails user = appUserService.loadUserByUsername(username);
-    String accessToken = JWT.create()
-        .withSubject(user.getUsername())
-        .withExpiresAt(new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMicros(10)))
-        .withIssuer("RegularInvestDAO")
-        .withClaim("roles",
-            user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(
-                Collectors.toList())).sign(algorithm);
-    return generateSuccessResponse(
-        TokenResponseDTO.builder().accessToken(accessToken).refreshToken(refreshToken).build());
+    return generateSuccessResponse(tokenService.verifyAndRegenerateTokenResponse(refreshTokenDTO.getRefreshToken()));
   }
 }

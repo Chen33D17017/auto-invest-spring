@@ -25,7 +25,7 @@ public class RegularInvestController {
 
     private final RegularInvestService regularInvestService;
 
-    @PostMapping("/v1/regularInvest")
+    @PostMapping("/v1/regular_invest")
     public ResponseEntity<String> registerRegularInvest(
         Principal principal,
         @Valid @RequestBody RegisterRegularInvestRequestDTO registerRegularInvestRequestDTO) {
@@ -33,18 +33,18 @@ public class RegularInvestController {
             .registerRegularInvest(principal.getName(), registerRegularInvestRequestDTO));
     }
 
-    @GetMapping("/v1/regularInvest")
+    @GetMapping("/v1/regular_invest")
     public ResponseEntity<String> fetchRegularInvest(Principal principal,
-        @RequestParam(required = false, name = "cryptoName") String cryptoName,
+        @RequestParam(required = false, name = "crypto_name") String cryptoName,
         @RequestParam(required = false, name = "weekday") String weekday) {
         return generateSuccessResponse(
             regularInvestService.fetchRegularInvest(principal.getName(), cryptoName, weekday));
     }
 
-    @PutMapping("/v1/regularInvest")
+    @PutMapping("/v1/regular_invest")
     public ResponseEntity<String> updateRegularInvest(
         Principal principal,
-        @RequestParam(name = "cryptoName") String cryptoName,
+        @RequestParam(name = "crypto_name") String cryptoName,
         @Valid @RequestBody PutRegularInvestRequestDTO updateRegularInvestDTO) {
         return generateSuccessResponse(
             regularInvestService.updateRegularInvest(principal.getName(), cryptoName, updateRegularInvestDTO)
@@ -52,10 +52,10 @@ public class RegularInvestController {
     }
 
 
-    @DeleteMapping("/v1/regularInvest")
+    @DeleteMapping("/v1/regular_invest")
     public ResponseEntity<String> deleteRegularInvest(
         Principal principal,
-        @RequestParam(name = "cryptoName") String cryptoName,
+        @RequestParam(name = "crypto_name") String cryptoName,
         @RequestParam(required = false, name="weekday") String weekday
     ){
         return generateSuccessResponse(

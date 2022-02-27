@@ -6,7 +6,6 @@ import java.sql.Timestamp;
 import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.peihao.autoInvest.dto.feign.requeset.BinanceOrderRequestDTO;
 import me.peihao.autoInvest.dto.feign.requeset.BinanceOrderStatusRequestDTO;
 import me.peihao.autoInvest.dto.feign.requeset.BinanceTimestampRequestDTO;
 import me.peihao.autoInvest.dto.feign.requeset.BinanceTradeHistoryRequestDTO;
@@ -48,7 +47,7 @@ public class BinanceGatewayController {
   public ResponseEntity<String> fetchOrder(
       Principal principal,
       @RequestParam(name = "symbol") String symbol,
-      @RequestParam(name = "orderId") Long orderId
+      @RequestParam(name = "order_id") Long orderId
   ) {
 
     AppUser appUser = getAppUser(principal.getName());
@@ -98,7 +97,7 @@ public class BinanceGatewayController {
   @GetMapping("/v1/profit")
   public ResponseEntity<String> getProfit(
       Principal principal,
-      @RequestParam(name = "cryptoName") String cryptoName) {
+      @RequestParam(name = "crypto_name") String cryptoName) {
     return generateSuccessResponse(
         binanceGatewayService.getProfit(principal.getName(), cryptoName)
     );

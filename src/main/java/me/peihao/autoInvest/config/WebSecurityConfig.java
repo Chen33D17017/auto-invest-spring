@@ -3,6 +3,7 @@ package me.peihao.autoInvest.config;
 import me.peihao.autoInvest.filter.CustomAuthorizationFilter;
 import me.peihao.autoInvest.filter.CustomizeAuthenticationFilter;
 import me.peihao.autoInvest.service.AppUserService;
+import me.peihao.autoInvest.service.TokenService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,17 +23,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
   private final AppUserService appUserService;
   private final BCryptPasswordEncoder bCryptPasswordEncoder;
-  private final String signSecret;
+  private final TokenService tokenService;
 
-  public WebSecurityConfig(AppUserService appUserService, BCryptPasswordEncoder bCryptPasswordEncoder, @Value("jwt.sign-secret") String signSecret){
+  public WebSecurityConfig(AppUserService appUserService,
+      BCryptPasswordEncoder bCryptPasswordEncoder, TokenService tokenService) {
     this.appUserService = appUserService;
     this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-    this.signSecret = signSecret;
+    this.tokenService = tokenService;
   }
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
-    CustomizeAuthenticationFilter customizeAuthenticationFilter = new CustomizeAuthenticationFilter(authenticationManagerBean(), signSecret);
+    CustomizeAuthenticationFilter customizeAuthenticationFilter = new CustomizeAuthenticationFilter(authenticationManagerBean(), tokenService);
     customizeAuthenticationFilter.setFilterProcessesUrl("/api/v1/login");
     http.csrf().disable();
     http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
@@ -40,7 +42,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/api/v1/registration/**", "/api/v1/login", "/api/v1/refresh/token/**").permitAll()
         .antMatchers("/**").hasAnyAuthority("USER", "ADMIN");
     http.addFilter(customizeAuthenticationFilter);
-    http.addFilterBefore(new CustomAuthorizationFilter(signSecret), UsernamePasswordAuthenticationFilter.class);
+    http.addFilterBefore(new CustomAuthorizationFilter(tokenService), UsernamePasswordAuthenticationFilter.class);
   }
 
   @Override
