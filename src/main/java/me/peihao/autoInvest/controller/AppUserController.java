@@ -73,7 +73,7 @@ public class AppUserController {
         appUserService.reissueConfirmationToken(username));
   }
 
-  @GetMapping("/v1/refresh/token")
+  @PostMapping("/v1/refresh/token")
   public ResponseEntity<String> refreshToken(@RequestBody RefreshTokenDTO refreshTokenDTO) {
     String refreshToken = refreshTokenDTO.getRefreshToken();
     Algorithm algorithm = Algorithm.HMAC256(signSecret.getBytes());
