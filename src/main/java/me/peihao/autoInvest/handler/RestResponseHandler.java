@@ -1,5 +1,6 @@
 package me.peihao.autoInvest.handler;
 
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.fasterxml.jackson.databind.JsonMappingException.Reference;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.alibaba.fastjson.JSONObject;
@@ -118,6 +119,14 @@ public class RestResponseHandler extends ResponseEntityExceptionHandler {
         object.put(ERROR_MESSAGE, ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON)
             .body(ResultUtil.buildResult(ResultInfoConstants.BAD_REQUEST, object));
+    }
+
+    @ExceptionHandler(TokenExpiredException.class)
+    public ResponseEntity<String> handleTokenExpiredException(TokenExpiredException ex){
+        JSONObject object = new JSONObject();
+        object.put(ERROR_MESSAGE, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON)
+            .body(ResultUtil.buildResult(ResultInfoConstants.INVALID_TOKEN, object));
     }
 
 }
