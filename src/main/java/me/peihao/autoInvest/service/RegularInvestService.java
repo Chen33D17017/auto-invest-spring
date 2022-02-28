@@ -74,19 +74,19 @@ public class RegularInvestService {
   }
 
   @Transactional
-  public FetchRegularInvestResponseDTO updateRegularInvest(String username, String cryptoName, PutRegularInvestRequestDTO request){
+  public FetchRegularInvestResponseDTO updateRegularInvest(String username, PutRegularInvestRequestDTO request){
     AppUser targetUser = appUserRepository.findByUsername(username).orElseThrow(
         () -> new IllegalStateException("Illegal User")
     );
-    regularInvestRepository.deleteByUsernameAndCryptoName(username, cryptoName);
+    regularInvestRepository.deleteByUsernameAndCryptoName(username, request.getCryptoName());
     for (String weekdays : request.getWeekdays()){
       RegularInvest regularInvest = new RegularInvest(targetUser,
-          WeekDayEnum.valueOf(weekdays), request.getBuyFrom(), cryptoName,
+          WeekDayEnum.valueOf(weekdays), request.getBuyFrom(), request.getCryptoName(),
           request.getAmount());
       regularInvestRepository.save(regularInvest);
     }
 
-    return fetchRegularInvest(username, cryptoName, null);
+    return fetchRegularInvest(username, request.getCryptoName(), null);
   }
 
   @Transactional

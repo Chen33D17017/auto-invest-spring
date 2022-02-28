@@ -44,10 +44,9 @@ public class RegularInvestController {
     @PutMapping("/v1/regular_invest")
     public ResponseEntity<String> updateRegularInvest(
         Principal principal,
-        @RequestParam(name = "crypto_name") String cryptoName,
         @Valid @RequestBody PutRegularInvestRequestDTO updateRegularInvestDTO) {
         return generateSuccessResponse(
-            regularInvestService.updateRegularInvest(principal.getName(), cryptoName, updateRegularInvestDTO)
+            regularInvestService.updateRegularInvest(principal.getName(), updateRegularInvestDTO)
         );
     }
 

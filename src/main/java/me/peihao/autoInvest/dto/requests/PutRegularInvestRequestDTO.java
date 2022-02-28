@@ -14,6 +14,9 @@ import me.peihao.autoInvest.validator.Crypto;
 public class PutRegularInvestRequestDTO {
 
     @NotNull
+    private String cryptoName;
+
+    @NotNull
     private List<String> weekdays;
 
     @NotNull
