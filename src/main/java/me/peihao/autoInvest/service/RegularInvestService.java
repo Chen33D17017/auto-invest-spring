@@ -1,6 +1,5 @@
 package me.peihao.autoInvest.service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -11,7 +10,6 @@ import me.peihao.autoInvest.constant.WeekDayEnum;
 import me.peihao.autoInvest.dto.requests.PutRegularInvestRequestDTO;
 import me.peihao.autoInvest.dto.requests.RegisterRegularInvestRequestDTO;
 import me.peihao.autoInvest.dto.response.FetchRegularInvestResponseDTO;
-import me.peihao.autoInvest.dto.response.PutRegularInvestResponseDTO;
 import me.peihao.autoInvest.dto.response.RegisterRegularInvestResponseDTO;
 import me.peihao.autoInvest.exception.AutoInvestException;
 import me.peihao.autoInvest.model.AppUser;
@@ -19,11 +17,7 @@ import me.peihao.autoInvest.model.RegularInvest;
 import me.peihao.autoInvest.repository.AppUserRepository;
 import me.peihao.autoInvest.repository.FearIndexRepository;
 import me.peihao.autoInvest.repository.RegularInvestRepository;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,11 +36,15 @@ public class RegularInvestService {
     AppUser targetUser = appUserRepository.findByUsername(username).orElseThrow(
         () -> new IllegalStateException("Illegal User")
     );
-    for (String weekdays : request.getWeekdays()){
-      RegularInvest regularInvest = new RegularInvest(targetUser,
-          WeekDayEnum.valueOf(weekdays), request.getBuyFrom(), request.getCryptoName(),
-          request.getAmount());
-      regularInvestRepository.save(regularInvest);
+    try {
+      for (String weekdays : request.getWeekdays()) {
+        RegularInvest regularInvest = new RegularInvest(targetUser,
+            WeekDayEnum.valueOf(weekdays), request.getBuyFrom(), request.getCryptoName(),
+            request.getAmount());
+        regularInvestRepository.save(regularInvest);
+      }
+    } catch (ConstraintViolationException exception){
+      throw new AutoInvestException(ResultInfoConstants.CRYPTO_BEEN_REGISTER);
     }
     return RegisterRegularInvestResponseDTO.builder()
         .weekdays(request.getWeekdays()).buyFrom(request.getBuyFrom())

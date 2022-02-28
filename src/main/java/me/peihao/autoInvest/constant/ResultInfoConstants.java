@@ -36,6 +36,8 @@ public class ResultInfoConstants {
     public static final ResultInfo INVALID_TOKEN = new ResultInfo("010000009", "INVALID_TOKEN", "invalid token", "F");
     public static final ResultInfo TOKEN_EXPIRED = new ResultInfo("010000010", "TOKEN_EXPIRED", "token is expired", "F");
     public static final ResultInfo BAD_CREDENTIAL = new ResultInfo("010000011", "BAD_CREDENTIAL", "bad credential", "F");
+    public static final ResultInfo UNAUTHORIZED = new ResultInfo("010000012", "UNAUTHORIZED", "unauthorized", "F");
+    public static final ResultInfo CRYPTO_BEEN_REGISTER = new ResultInfo("010000013", "CRYPT_BEEN_REGISTER", "crypto had been registered", "F");
     private static final Map<String, ResultInfo> codeToResultInfo;
     private static final List<ResultInfo> ResultInfoList = new ArrayList<>();
     static {

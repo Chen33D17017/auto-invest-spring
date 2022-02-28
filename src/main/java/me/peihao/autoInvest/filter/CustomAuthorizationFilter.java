@@ -1,5 +1,8 @@
 package me.peihao.autoInvest.filter;
 
+import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import javax.servlet.FilterChain;
@@ -16,6 +19,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import static me.peihao.autoInvest.common.ResultUtil.buildJson;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @Slf4j
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
@@ -37,15 +42,27 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
           String accessToken = authorizationHeader.substring("Bearer".length()).trim();
           SecurityContextHolder.getContext().setAuthentication(tokenService.authenticationToken(accessToken));
           filterChain.doFilter(request, response);
-        } catch (Exception exception) {
-          log.error("Error logging in : {}", exception.getMessage());
+        } catch (TokenExpiredException exception) {
           response.setStatus(FORBIDDEN.value());
           response.setContentType(String.valueOf(MediaType.APPLICATION_JSON));
           new ObjectMapper().writeValue(response.getOutputStream(),
-              buildJson(ResultInfoConstants.INVALID_TOKEN, exception.getMessage()));
+              buildJson(ResultInfoConstants.TOKEN_EXPIRED, "token is expired"));
+        } catch (SignatureVerificationException | JWTDecodeException exception){
+          response.setStatus(FORBIDDEN.value());
+          response.setContentType(String.valueOf(MediaType.APPLICATION_JSON));
+          new ObjectMapper().writeValue(response.getOutputStream(),
+              buildJson(ResultInfoConstants.INVALID_TOKEN, "invalid token"));
+        } catch (Exception exception){
+          response.setStatus(INTERNAL_SERVER_ERROR.value());
+          response.setContentType(String.valueOf(MediaType.APPLICATION_JSON));
+          new ObjectMapper().writeValue(response.getOutputStream(),
+              buildJson(ResultInfoConstants.SYSTEM_ERROR, "system error"));
         }
       } else {
-        filterChain.doFilter(request, response);
+        response.setStatus(UNAUTHORIZED.value());
+        response.setContentType(String.valueOf(MediaType.APPLICATION_JSON));
+        new ObjectMapper().writeValue(response.getOutputStream(),
+            buildJson(ResultInfoConstants.UNAUTHORIZED, "unauthorized"));
       }
     }
   }
