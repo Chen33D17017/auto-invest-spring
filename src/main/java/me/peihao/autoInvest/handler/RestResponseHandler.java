@@ -124,14 +124,21 @@ public class RestResponseHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler({
-        TokenExpiredException.class,
         SignatureVerificationException.class,
         JWTDecodeException.class
     })
-    public ResponseEntity<String> handleTokenExpiredException(Exception ex) {
+    public ResponseEntity<String> handleInvalidTokenException(Exception ex) {
         JSONObject object = new JSONObject();
         object.put(ERROR_MESSAGE, "Invalid token");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON)
             .body(ResultUtil.buildResult(ResultInfoConstants.INVALID_TOKEN, object));
+    }
+
+    @ExceptionHandler(TokenExpiredException.class)
+    public ResponseEntity<String> handleTokenExpiredException(Exception ex) {
+        JSONObject object = new JSONObject();
+        object.put(ERROR_MESSAGE, "token expired");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON)
+            .body(ResultUtil.buildResult(ResultInfoConstants.TOKEN_EXPIRED, object));
     }
 }
