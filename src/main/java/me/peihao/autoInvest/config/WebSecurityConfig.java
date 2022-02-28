@@ -1,5 +1,7 @@
 package me.peihao.autoInvest.config;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 import me.peihao.autoInvest.filter.CustomAuthorizationFilter;
 import me.peihao.autoInvest.filter.CustomizeAuthenticationFilter;
 import me.peihao.autoInvest.service.AppUserService;
@@ -36,7 +38,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   protected void configure(HttpSecurity http) throws Exception {
     CustomizeAuthenticationFilter customizeAuthenticationFilter = new CustomizeAuthenticationFilter(authenticationManagerBean(), tokenService);
     customizeAuthenticationFilter.setFilterProcessesUrl("/api/v1/login");
-    http.csrf().disable();
+    http.csrf().disable().cors();
     http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     http.authorizeRequests()
         .antMatchers("/api/v1/registration/**", "/api/v1/login", "/api/v1/refresh/token/**").permitAll()
