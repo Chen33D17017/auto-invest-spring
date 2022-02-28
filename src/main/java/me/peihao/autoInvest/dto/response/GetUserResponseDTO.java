@@ -12,9 +12,11 @@ public class GetUserResponseDTO {
   private String name;
   private String username;
   private String email;
+  private String apiKey;
+  private String apiSecret;
 
-  public static GetUserResponseDTO generateUserResponseDTO(AppUser appUser){
-    return new GetUserResponseDTO(appUser.getName(), appUser.getUsername(), appUser.getEmail());
+  public static GetUserResponseDTO generateUserResponseDTO(AppUser appUser, String apiKey, String apiSecret){
+    return new GetUserResponseDTO(appUser.getName(), appUser.getUsername(), appUser.getEmail(), apiKey, apiSecret);
   }
 
 }

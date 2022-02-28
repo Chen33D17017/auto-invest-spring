@@ -34,6 +34,7 @@ public class AppUserService implements UserDetailsService {
   private final ConfirmationTokenRepository confirmationTokenRepository;
   private final DiscordFeign discordFeign;
   private final String adminWebhookId;
+  private final int markSpec;
 
   @Autowired
   public AppUserService(
@@ -41,13 +42,15 @@ public class AppUserService implements UserDetailsService {
       BCryptPasswordEncoder bCryptPasswordEncoder,
       ConfirmationTokenRepository confirmationTokenRepository,
       DiscordFeign discordFeign,
-      @Value("${webhook.admin-id}") String adminWebhookId
+      @Value("${webhook.admin-id}") String adminWebhookId,
+      @Value("${auto-invest.mark-spec}") int markSpec
   ) {
     this.appUserRepository = appUserRepository;
     this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     this.confirmationTokenRepository = confirmationTokenRepository;
     this.discordFeign = discordFeign;
     this.adminWebhookId = adminWebhookId;
+    this.markSpec = markSpec;
   }
 
   @Override
@@ -57,7 +60,7 @@ public class AppUserService implements UserDetailsService {
   }
 
   @Transactional
-  public RegistrationUserResponseDTO signUpUser(AppUser appUser){
+  public RegistrationUserResponseDTO signUpUser(AppUser appUser) throws Exception {
     boolean userExists = appUserRepository.findByUsername(appUser.getUsername())
         .isPresent();
     if (userExists) {
@@ -80,11 +83,14 @@ public class AppUserService implements UserDetailsService {
         .username(appUser.getUsername())
         .name(appUser.getName())
         .email(appUser.getEmail())
+        .apiKey(maskString(appUser.getApiKey()))
+        .apiSecret(maskString(appUser.getApiSecret()))
         .confirmToken(token)
         .build();
   }
 
-  public RegistrationUserResponseDTO register(RegistrationUserRequestDTO requestDTO) {
+  public RegistrationUserResponseDTO register(RegistrationUserRequestDTO requestDTO)
+      throws Exception {
     return signUpUser(
         new AppUser(
             requestDTO.getName(),
@@ -124,7 +130,8 @@ public class AppUserService implements UserDetailsService {
     return "confirm";
   }
 
-  public PatchUserResponseDTO patchUser(PatchUserRequestDTO requestDTO, String username) {
+  public PatchUserResponseDTO patchUser(PatchUserRequestDTO requestDTO, String username)
+      throws Exception {
     AppUser appUser = appUserRepository.findByUsername(username)
         .orElseThrow(() -> new UsernameNotFoundException(String.format(USER_NOT_FOUND, username)));
 
@@ -151,13 +158,47 @@ public class AppUserService implements UserDetailsService {
 
     appUserRepository.save(appUser);
     return PatchUserResponseDTO.builder().username(appUser.getUsername()).email(appUser.getEmail())
-        .name(appUser.getName()).build();
+        .name(appUser.getName()).apiKey(maskString(appUser.getApiKey())).apiSecret(maskString(appUser.getApiSecret())).build();
   }
 
-  public GetUserResponseDTO getUserInfo(String username) {
-    return GetUserResponseDTO.generateUserResponseDTO(
-        appUserRepository.findByUsername(username).orElseThrow(
-            () -> new UsernameNotFoundException(String.format(USER_NOT_FOUND, username)))
-    );
+  public GetUserResponseDTO getUserInfo(String username) throws Exception {
+    AppUser appUser = appUserRepository.findByUsername(username).orElseThrow(
+        () -> new UsernameNotFoundException(String.format(USER_NOT_FOUND, username)));
+    return GetUserResponseDTO.generateUserResponseDTO(appUser, maskString(appUser.getApiKey()), maskString(appUser.getApiSecret()));
+  }
+
+  private String maskString(String strText) throws Exception {
+    return maskString(strText, markSpec, strText.length() - markSpec, '*');
+  }
+
+  private String maskString(String strText, int start, int end, char maskChar)
+      throws Exception{
+
+    if(strText == null || strText.equals(""))
+      return "";
+
+    if(start < 0)
+      start = 0;
+
+    if( end > strText.length() )
+      end = strText.length();
+
+    if(start > end)
+      throw new Exception("End index cannot be greater than start index");
+
+    int maskLength = end - start;
+
+    if(maskLength == 0)
+      return strText;
+
+    StringBuilder sbMaskString = new StringBuilder(maskLength);
+
+    for(int i = 0; i < maskLength; i++){
+      sbMaskString.append(maskChar);
+    }
+
+    return strText.substring(0, start)
+        + sbMaskString.toString()
+        + strText.substring(start + maskLength);
   }
 }

@@ -1,13 +1,6 @@
 package me.peihao.autoInvest.controller;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import java.security.Principal;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import javax.websocket.server.PathParam;
 
 import static me.peihao.autoInvest.common.ResultUtil.generateSuccessResponse;
@@ -16,12 +9,9 @@ import lombok.AllArgsConstructor;
 import me.peihao.autoInvest.service.TokenService;
 import me.peihao.autoInvest.dto.requests.PatchUserRequestDTO;
 import me.peihao.autoInvest.dto.requests.RefreshTokenDTO;
-import me.peihao.autoInvest.dto.response.TokenResponseDTO;
 import me.peihao.autoInvest.service.AppUserService;
 import me.peihao.autoInvest.dto.requests.RegistrationUserRequestDTO;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,7 +29,7 @@ public class AppUserController {
 
   @PostMapping("/v1/registration")
   public ResponseEntity<String> register(
-      @RequestBody RegistrationUserRequestDTO registrationUserRequestDTO) {
+      @RequestBody RegistrationUserRequestDTO registrationUserRequestDTO) throws Exception {
     return generateSuccessResponse(appUserService.register(registrationUserRequestDTO));
   }
 
@@ -50,13 +40,13 @@ public class AppUserController {
 
   @PatchMapping("/v1/user")
   public ResponseEntity<String> updateUserInfo(Principal principal,
-      @RequestBody PatchUserRequestDTO patchUserRequestDTO) {
+      @RequestBody PatchUserRequestDTO patchUserRequestDTO) throws Exception {
     return generateSuccessResponse(
         appUserService.patchUser(patchUserRequestDTO, principal.getName()));
   }
 
   @GetMapping("/v1/user")
-  public ResponseEntity<String> getUserInfo(Principal principal) {
+  public ResponseEntity<String> getUserInfo(Principal principal) throws Exception {
     return generateSuccessResponse(appUserService.getUserInfo(principal.getName()));
   }
 

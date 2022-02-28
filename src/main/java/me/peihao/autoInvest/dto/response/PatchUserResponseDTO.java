@@ -13,4 +13,6 @@ public class PatchUserResponseDTO {
   private String name;
   private String username;
   private String email;
+  private String apiKey;
+  private String apiSecret;
 }

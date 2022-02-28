@@ -13,6 +13,8 @@ public class RegistrationUserResponseDTO {
   private String name;
   private String username;
   private String email;
+  private String apiKey;
+  private String apiSecret;
 
   // delete it later
   private String confirmToken;
