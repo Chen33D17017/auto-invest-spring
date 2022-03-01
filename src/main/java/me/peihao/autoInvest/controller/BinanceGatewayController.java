@@ -47,7 +47,7 @@ public class BinanceGatewayController {
   public ResponseEntity<String> fetchOrder(
       Principal principal,
       @RequestParam(name = "symbol") String symbol,
-      @RequestParam(name = "order_id") Long orderId
+      @RequestParam(name = "orderId") Long orderId
   ) {
 
     AppUser appUser = getAppUser(principal.getName());
@@ -97,7 +97,7 @@ public class BinanceGatewayController {
   @GetMapping("/v1/profit")
   public ResponseEntity<String> getProfit(
       Principal principal,
-      @RequestParam(name = "crypto_name") String cryptoName) {
+      @RequestParam(name = "cryptoName") String cryptoName) {
     return generateSuccessResponse(
         binanceGatewayService.getProfit(principal.getName(), cryptoName)
     );

@@ -35,7 +35,7 @@ public class RegularInvestController {
 
     @GetMapping("/v1/regular_invest")
     public ResponseEntity<String> fetchRegularInvest(Principal principal,
-        @RequestParam(required = false, name = "crypto_name") String cryptoName,
+        @RequestParam(required = false, name = "cryptoName") String cryptoName,
         @RequestParam(required = false, name = "weekday") String weekday) {
         return generateSuccessResponse(
             regularInvestService.fetchRegularInvest(principal.getName(), cryptoName, weekday));
@@ -54,7 +54,7 @@ public class RegularInvestController {
     @DeleteMapping("/v1/regular_invest")
     public ResponseEntity<String> deleteRegularInvest(
         Principal principal,
-        @RequestParam(name = "crypto_name") String cryptoName,
+        @RequestParam(name = "cryptoName") String cryptoName,
         @RequestParam(required = false, name="weekday") String weekday
     ){
         return generateSuccessResponse(
