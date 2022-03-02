@@ -4,22 +4,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
+import lombok.Data;
 import lombok.Value;
+import me.peihao.autoInvest.dto.RegularInvestDTO;
+import me.peihao.autoInvest.validator.Weekday;
+import me.peihao.autoInvest.validator.WhenDuplicate;
 
 @Value
 public class RegisterRegularInvestRequestDTO {
 
     @NotNull
-    @JsonProperty("weekdays")
-    List<String> weekdays;
+    RegularInvestDTO[] regularInvests;
 
-    @NotNull(message = "This field cannot be null")
-    String cryptoName;
+    @WhenDuplicate
+    String whenDuplicate;
 
-    @NotNull
-    String buyFrom;
 
-    @NotNull
-    @Positive
-    Float amount;
 }
