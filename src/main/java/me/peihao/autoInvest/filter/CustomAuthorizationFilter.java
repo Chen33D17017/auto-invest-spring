@@ -53,6 +53,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
           new ObjectMapper().writeValue(response.getOutputStream(),
               buildJson(ResultInfoConstants.INVALID_TOKEN, "invalid token"));
         } catch (Exception exception){
+          log.error("Unexpected error: cause: {} - {}", exception.getCause(), exception.getMessage());
           response.setStatus(INTERNAL_SERVER_ERROR.value());
           response.setContentType(String.valueOf(MediaType.APPLICATION_JSON));
           new ObjectMapper().writeValue(response.getOutputStream(),
