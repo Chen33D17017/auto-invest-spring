@@ -12,7 +12,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import me.peihao.autoInvest.constant.ResultInfoConstants;
 import me.peihao.autoInvest.dto.response.TokenResponseDTO;
+import me.peihao.autoInvest.exception.AutoInvestException;
 import me.peihao.autoInvest.model.AppUser;
 import me.peihao.autoInvest.repository.AppUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,6 +77,9 @@ public class TokenService {
   }
 
   public TokenResponseDTO verifyAndRegenerateTokenResponse(String refreshToken){
+    if(refreshToken == null){
+      throw new AutoInvestException(ResultInfoConstants.INVALID_TOKEN);
+    }
     JWTVerifier verifier = JWT.require(algorithm).build();
     DecodedJWT decodedJWT = verifier.verify(refreshToken);
     String username = decodedJWT.getSubject();

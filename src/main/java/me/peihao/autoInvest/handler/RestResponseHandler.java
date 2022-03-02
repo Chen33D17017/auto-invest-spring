@@ -9,6 +9,7 @@ import com.alibaba.fastjson.JSONObject;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.validation.ValidationException;
+import lombok.extern.slf4j.Slf4j;
 import me.peihao.autoInvest.common.ResultInfo;
 import me.peihao.autoInvest.common.ResultUtil;
 import me.peihao.autoInvest.constant.ResultInfoConstants;
@@ -26,6 +27,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
+@Slf4j
 public class RestResponseHandler extends ResponseEntityExceptionHandler {
 
     private static final String ERROR_MESSAGE = "error_message";
@@ -47,7 +49,8 @@ public class RestResponseHandler extends ResponseEntityExceptionHandler {
                 object.put(ERROR_MESSAGE, "Invalid Format on " + errMsg);
             }
         } else {
-            object.put(ERROR_MESSAGE, ex.getMessage());
+            log.error("{}: {}", ex.getCause(), ex.getMessage());
+            object.put(ERROR_MESSAGE, "Invalid Request Body");
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -85,6 +88,7 @@ public class RestResponseHandler extends ResponseEntityExceptionHandler {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(ResultUtil.buildResult(autoInvestException.getResultInfo(), object));
         }
+        System.out.println(ex.getMessage());
         object.put(ERROR_MESSAGE, ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON)
                 .body(ResultUtil.buildResult(ResultInfoConstants.BAD_REQUEST, object));
