@@ -1,7 +1,9 @@
 package me.peihao.autoInvest.repository;
 
 import java.util.List;
+import java.util.Optional;
 import me.peihao.autoInvest.constant.WeekDayEnum;
+import me.peihao.autoInvest.model.AppUser;
 import me.peihao.autoInvest.model.RegularInvest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -33,6 +35,9 @@ public interface RegularInvestRepository extends JpaRepository<RegularInvest, Lo
   @Modifying
   @Query(value = SQL_DELETE_FROM_USER_CRYPTO_NAME_WEEKDAY, nativeQuery = true)
   void deleteByCryptoNameAndUsernameAndWeekday(String username, String cryptoName, String weekday);
+
+  RegularInvest findRegularInvestsByAppUserAndCryptoNameAndWeekday(AppUser appUser,
+      String cryptoName, WeekDayEnum weekday);
 
   List<RegularInvest> findRegularInvestsByWeekday(WeekDayEnum weekday);
 }

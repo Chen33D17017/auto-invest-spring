@@ -20,7 +20,7 @@ public enum WeekDayEnum {
     private static final Map<String, WeekDayEnum> valueToEnum = new HashMap<>();
     static {
         Arrays.stream(WeekDayEnum.values())
-                .forEach(balanceTypeEnum -> valueToEnum.put(balanceTypeEnum.name(), balanceTypeEnum));
+                .forEach(weekDayEnum -> valueToEnum.put(weekDayEnum.name(), weekDayEnum));
     }
 
     @JsonCreator(mode = Mode.DELEGATING)

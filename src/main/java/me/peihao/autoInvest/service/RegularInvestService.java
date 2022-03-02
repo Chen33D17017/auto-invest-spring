@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.peihao.autoInvest.constant.ResultInfoConstants;
 import me.peihao.autoInvest.constant.WeekDayEnum;
+import me.peihao.autoInvest.constant.WhenDuplicateEnum;
+import me.peihao.autoInvest.dto.RegularInvestDTO;
 import me.peihao.autoInvest.dto.requests.PutRegularInvestRequestDTO;
 import me.peihao.autoInvest.dto.requests.RegisterRegularInvestRequestDTO;
 import me.peihao.autoInvest.dto.response.FetchRegularInvestResponseDTO;
@@ -17,7 +19,9 @@ import me.peihao.autoInvest.model.RegularInvest;
 import me.peihao.autoInvest.repository.AppUserRepository;
 import me.peihao.autoInvest.repository.FearIndexRepository;
 import me.peihao.autoInvest.repository.RegularInvestRepository;
+import me.peihao.autoInvest.validator.WhenDuplicate;
 import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,19 +40,33 @@ public class RegularInvestService {
     AppUser targetUser = appUserRepository.findByUsername(username).orElseThrow(
         () -> new IllegalStateException("Illegal User")
     );
-    try {
-      for (String weekdays : request.getWeekdays()) {
+
+    for (RegularInvestDTO regularInvestDTO : request.getRegularInvests()) {
+      RegularInvest existedRegularInvest = regularInvestRepository
+          .findRegularInvestsByAppUserAndCryptoNameAndWeekday(targetUser,
+              regularInvestDTO.getCryptoName(), WeekDayEnum.valueOf(regularInvestDTO.getWeekday()));
+
+      if (existedRegularInvest != null) {
+        switch (WhenDuplicateEnum.forValue(request.getWhenDuplicate())) {
+          case error:
+            throw new AutoInvestException(ResultInfoConstants.FAIL_ON_REWRITE);
+          case ignore:
+            continue;
+          case overwrite:
+            existedRegularInvest.setAmount(regularInvestDTO.getAmount());
+            existedRegularInvest.setBuyFrom(regularInvestDTO.getBuyFrom());
+            regularInvestRepository.save(existedRegularInvest);
+        }
+      } else {
         RegularInvest regularInvest = new RegularInvest(targetUser,
-            WeekDayEnum.valueOf(weekdays), request.getBuyFrom(), request.getCryptoName(),
-            request.getAmount());
+            WeekDayEnum.valueOf(regularInvestDTO.getWeekday()), regularInvestDTO.getBuyFrom(),
+            regularInvestDTO.getCryptoName(),
+            regularInvestDTO.getAmount());
         regularInvestRepository.save(regularInvest);
       }
-    } catch (ConstraintViolationException exception){
-      throw new AutoInvestException(ResultInfoConstants.CRYPTO_BEEN_REGISTER);
     }
     return RegisterRegularInvestResponseDTO.builder()
-        .weekdays(request.getWeekdays()).buyFrom(request.getBuyFrom())
-        .cryptoName(request.getCryptoName()).amount(request.getAmount()).build();
+        .regularInvests(request.getRegularInvests()).build();
   }
 
   public FetchRegularInvestResponseDTO fetchRegularInvest(String username, String cryptoName, String weekday){
