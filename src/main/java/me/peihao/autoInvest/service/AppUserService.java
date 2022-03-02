@@ -161,18 +161,17 @@ public class AppUserService implements UserDetailsService {
         .name(appUser.getName()).apiKey(maskString(appUser.getApiKey())).apiSecret(maskString(appUser.getApiSecret())).build();
   }
 
-  public GetUserResponseDTO getUserInfo(String username) throws Exception {
+  public GetUserResponseDTO getUserInfo(String username) {
     AppUser appUser = appUserRepository.findByUsername(username).orElseThrow(
         () -> new UsernameNotFoundException(String.format(USER_NOT_FOUND, username)));
     return GetUserResponseDTO.generateUserResponseDTO(appUser, maskString(appUser.getApiKey()), maskString(appUser.getApiSecret()));
   }
 
-  private String maskString(String strText) throws Exception {
+  private String maskString(String strText){
     return maskString(strText, markSpec, strText.length() - markSpec, '*');
   }
 
-  private String maskString(String strText, int start, int end, char maskChar)
-      throws Exception{
+  private String maskString(String strText, int start, int end, char maskChar){
 
     if(strText == null || strText.equals(""))
       return "";
@@ -184,7 +183,7 @@ public class AppUserService implements UserDetailsService {
       end = strText.length();
 
     if(start > end)
-      throw new Exception("End index cannot be greater than start index");
+      return strText;
 
     int maskLength = end - start;
 
