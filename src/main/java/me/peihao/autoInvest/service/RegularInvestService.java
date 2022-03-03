@@ -83,9 +83,10 @@ public class RegularInvestService {
     }
 
     List<RegularInvestDTO> resultList = new ArrayList<>();
-    regularInvestSteam.forEach(a -> resultList.add(new RegularInvestDTO(
-        a.getWeekday().name(), a.getBuyFrom(), a.getCryptoName(), a.getAmount()
-    )));
+    regularInvestSteam.forEach(a -> resultList.add(
+        RegularInvestDTO.builder().amount(a.getAmount()).buyFrom(a.getBuyFrom())
+            .cryptoName(a.getCryptoName()).weekday(a.getWeekday().name()).build())
+    );
     return new FetchRegularInvestResponseDTO(resultList);
   }
 
