@@ -18,7 +18,7 @@ public class GetProfitResponseDTO {
 
   private Float averagePrice;
 
-  private String profitRate;
+  private Float profitRate;
 
   private Float priceNow;
 }

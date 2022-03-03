@@ -89,7 +89,7 @@ public class RegularInvestTask {
         buyingResult.getExecutedQty(),
         profit.getAmount(),
         profit.getAveragePrice(),
-        profit.getProfitRate()
+        String.format("%.2f%%", profit.getProfitRate())
     )));
     // Avoid too high tps to webhook
     try {

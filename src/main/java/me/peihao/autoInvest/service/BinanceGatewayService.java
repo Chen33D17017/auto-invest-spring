@@ -195,7 +195,7 @@ public class BinanceGatewayService {
 
     return GetProfitResponseDTO.builder().cryptoName(cryptoName)
         .amount(totalAmount).totalCost(totalCost).averagePrice(averagePrice)
-        .priceNow(priceNow).profitRate(String.format("%.2f%%", profitRate)).build();
+        .priceNow(priceNow).profitRate(profitRate).build();
   }
 
   @Async

@@ -6,20 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import me.peihao.autoInvest.constant.WeekDayEnum;
+import me.peihao.autoInvest.dto.RegularInvestDTO;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class FetchRegularInvestResponseDTO {
-  private List<RegularInvest> regularInvests;
-
-  @Data
-  @AllArgsConstructor
-  public static class RegularInvest {
-    WeekDayEnum weekdays;
-    String buyFrom;
-    String cryptoName;
-    Float amount;
-  }
-
+  private List<RegularInvestDTO> regularInvests;
 }
