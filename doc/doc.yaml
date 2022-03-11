@@ -280,7 +280,7 @@ paths:
       tags:
         - Binance Gateway Controller
       summary: migration history data from Binance to service
-      description: If request with all, the migration will depends on user last history time on service db. If the all is false, it will migrate all related trading history from Binance 
+      description: If request with false(default), the migration will depends on user last history time on service db. If the all is true, it will migrate all related trading history from Binance
         to service db
       security: 
         - BearerAuth: []
