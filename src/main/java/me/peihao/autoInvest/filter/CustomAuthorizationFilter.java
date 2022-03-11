@@ -18,7 +18,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import static me.peihao.autoInvest.common.ResultUtil.buildJson;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
@@ -45,12 +44,12 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
           SecurityContextHolder.getContext().setAuthentication(tokenService.authenticationToken(accessToken));
           filterChain.doFilter(request, response);
         } catch (TokenExpiredException exception) {
-          response.setStatus(FORBIDDEN.value());
+          response.setStatus(UNAUTHORIZED.value());
           response.setContentType(String.valueOf(MediaType.APPLICATION_JSON));
           new ObjectMapper().writeValue(response.getOutputStream(),
               buildJson(ResultInfoConstants.TOKEN_EXPIRED, "token is expired"));
         } catch (SignatureVerificationException | JWTDecodeException exception){
-          response.setStatus(FORBIDDEN.value());
+          response.setStatus(UNAUTHORIZED.value());
           response.setContentType(String.valueOf(MediaType.APPLICATION_JSON));
           new ObjectMapper().writeValue(response.getOutputStream(),
               buildJson(ResultInfoConstants.INVALID_TOKEN, "invalid token"));
