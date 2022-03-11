@@ -29,19 +29,17 @@ public class BinanceFeignConfiguration {
   }
 
   @Bean
-  public ErrorDecoder errorDecoder(){
+  public ErrorDecoder errorDecoder() {
     return (String methodKey, Response response) -> {
       BinanceErrorResponseDTO errorMessage;
-      if (response.status() == HttpStatus.BAD_REQUEST.value()) {
-        try {
-          errorMessage = objMapper.readValue(response.body().toString(), BinanceErrorResponseDTO.class);
-        } catch (JsonProcessingException e) {
-          log.error("BinanceFeign: Fail to get message {}", e.toString());
-          throw new BinanceFeignException("Fail to parsing Binance response");
-        }
-        throw new BinanceFeignException(errorMessage.getMsg());
+      try {
+        errorMessage = objMapper
+            .readValue(response.body().toString(), BinanceErrorResponseDTO.class);
+      } catch (JsonProcessingException e) {
+        log.error("BinanceFeign: Fail to get message {}", e.toString());
+        throw new BinanceFeignException("Fail to parsing Binance response");
       }
-      return errorStatus(methodKey, response);
+      throw new BinanceFeignException(errorMessage.getMsg());
     };
 
   }
