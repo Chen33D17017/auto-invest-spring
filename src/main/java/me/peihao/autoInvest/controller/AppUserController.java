@@ -6,6 +6,7 @@ import javax.websocket.server.PathParam;
 import static me.peihao.autoInvest.common.ResultUtil.generateSuccessResponse;
 
 import lombok.AllArgsConstructor;
+import me.peihao.autoInvest.dto.requests.ReissueRegisterTokenDTO;
 import me.peihao.autoInvest.service.TokenService;
 import me.peihao.autoInvest.dto.requests.PatchUserRequestDTO;
 import me.peihao.autoInvest.dto.requests.RefreshTokenDTO;
@@ -52,9 +53,9 @@ public class AppUserController {
 
   @PostMapping("/v1/reissue")
   public ResponseEntity<String> reissueConfirmationToken(
-      @PathParam("username") String username) {
+      ReissueRegisterTokenDTO reissueRegisterTokenDTO) {
     return generateSuccessResponse(
-        appUserService.reissueConfirmationToken(username));
+        appUserService.reissueConfirmationToken(reissueRegisterTokenDTO.getUsername()));
   }
 
   @PostMapping("/v1/refresh/token")

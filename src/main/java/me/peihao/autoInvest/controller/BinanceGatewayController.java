@@ -10,6 +10,7 @@ import me.peihao.autoInvest.dto.feign.requeset.BinanceOrderStatusRequestDTO;
 import me.peihao.autoInvest.dto.feign.requeset.BinanceTimestampRequestDTO;
 import me.peihao.autoInvest.dto.feign.requeset.BinanceTradeHistoryRequestDTO;
 import me.peihao.autoInvest.dto.requests.MakeOrderRequestDTO;
+import me.peihao.autoInvest.dto.requests.MigrateHistoryDTO;
 import me.peihao.autoInvest.feign.BinanceFeign;
 import me.peihao.autoInvest.model.AppUser;
 import me.peihao.autoInvest.repository.AppUserRepository;
@@ -83,14 +84,13 @@ public class BinanceGatewayController {
   @PostMapping("/v1/migration")
   public ResponseEntity<String> migrateAllHistory(
       Principal principal,
-      @RequestParam(name = "symbol") String symbol,
-      @RequestParam(name = "all", required = false, defaultValue = "false") boolean all) {
-    if(all){
+      MigrateHistoryDTO migrateHistoryDTO) {
+    if(migrateHistoryDTO.getAll()){
       return generateSuccessResponse(
-          binanceGatewayService.migrateAllTradeHistory(principal.getName(), symbol));
+          binanceGatewayService.migrateAllTradeHistory(principal.getName(), migrateHistoryDTO.getSymbol()));
     } else {
       return generateSuccessResponse(
-          binanceGatewayService.migrateTradeHistory(principal.getName(), symbol));
+          binanceGatewayService.migrateTradeHistory(principal.getName(), migrateHistoryDTO.getSymbol()));
     }
   }
 
