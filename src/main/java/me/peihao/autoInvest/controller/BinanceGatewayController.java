@@ -71,9 +71,7 @@ public class BinanceGatewayController {
   public ResponseEntity<String> fetchHistory(
       Principal principal,
       @RequestParam(required = false, name = "symbol") String symbol) {
-    Long timestamp = new Timestamp(System.currentTimeMillis()).getTime();
-    BinanceTradeHistoryRequestDTO requestQuery = new BinanceTradeHistoryRequestDTO(symbol,
-        timestamp);
+    BinanceTradeHistoryRequestDTO requestQuery = new BinanceTradeHistoryRequestDTO(symbol);
     AppUser appUser = getAppUser(principal.getName());
     return generateSuccessResponse(
         binanceFeign.getTradeHistory(requestQuery, appUser.getApiSecret(),
