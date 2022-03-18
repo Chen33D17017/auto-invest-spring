@@ -3,6 +3,7 @@ services:
   service-db:
     image: "mysql:5.7.16"
     container_name: service-db
+    restart: always
     networks:
       - service-network
     ports:
@@ -18,6 +19,7 @@ services:
   redis:
     image: redis:4.0.10-alpine
     container_name: service-cache
+    restart: always
     networks:
       - service-network
     ports:
