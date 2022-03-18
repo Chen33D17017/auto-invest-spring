@@ -6,6 +6,7 @@ import javax.websocket.server.PathParam;
 import static me.peihao.autoInvest.common.ResultUtil.generateSuccessResponse;
 
 import lombok.AllArgsConstructor;
+import me.peihao.autoInvest.dto.requests.ChangePasswordDTO;
 import me.peihao.autoInvest.dto.requests.ReissueRegisterTokenDTO;
 import me.peihao.autoInvest.service.TokenService;
 import me.peihao.autoInvest.dto.requests.PatchUserRequestDTO;
@@ -61,5 +62,10 @@ public class AppUserController {
   @PostMapping("/v1/refresh/token")
   public ResponseEntity<String> refreshToken(@RequestBody RefreshTokenDTO refreshTokenDTO) {
     return generateSuccessResponse(tokenService.verifyAndRegenerateTokenResponse(refreshTokenDTO.getRefreshToken()));
+  }
+
+  @PostMapping("/v1/change_password")
+  public ResponseEntity<String> changePassword(Principal principal, @RequestBody ChangePasswordDTO changePasswordDTO){
+    return generateSuccessResponse(appUserService.changePassword(principal.getName(), changePasswordDTO));
   }
 }

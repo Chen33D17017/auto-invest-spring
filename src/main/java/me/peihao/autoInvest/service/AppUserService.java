@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.peihao.autoInvest.constant.AppUserRole;
 import me.peihao.autoInvest.constant.ResultInfoConstants;
 import me.peihao.autoInvest.dto.feign.requeset.DiscordMessageRequestDTO;
+import me.peihao.autoInvest.dto.requests.ChangePasswordDTO;
 import me.peihao.autoInvest.dto.requests.PatchUserRequestDTO;
 import me.peihao.autoInvest.dto.requests.RegistrationUserRequestDTO;
 import me.peihao.autoInvest.dto.response.GetUserResponseDTO;
@@ -87,6 +88,20 @@ public class AppUserService implements UserDetailsService {
         .apiSecret(maskString(appUser.getApiSecret()))
         .confirmToken(token)
         .build();
+  }
+
+  public String changePassword(String username, ChangePasswordDTO changePasswordDTO){
+    AppUser targetUser = appUserRepository.findByUsername(username).orElseThrow(
+        () -> new IllegalStateException("User not found")
+    );
+
+    if(!targetUser.getPassword()
+        .equals(bCryptPasswordEncoder.encode(changePasswordDTO.getOldPassword()))){
+      throw new AutoInvestException(ResultInfoConstants.INVALID_PASSWORD);
+    }
+    targetUser.setPassword(bCryptPasswordEncoder.encode(changePasswordDTO.getNewPassword()));
+    appUserRepository.save(targetUser);
+    return "SUCCESS";
   }
 
   public RegistrationUserResponseDTO register(RegistrationUserRequestDTO requestDTO)

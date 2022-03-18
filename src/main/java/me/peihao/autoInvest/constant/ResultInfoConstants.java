@@ -40,6 +40,7 @@ public class ResultInfoConstants {
     public static final ResultInfo CRYPTO_BEEN_REGISTER = new ResultInfo("010000013", "CRYPT_BEEN_REGISTER", "crypto had been registered", "F");
     public static final ResultInfo INVALID_SETTING = new ResultInfo("010000014", "INVALID_SETTING", "invalid setting", "F");
     public static final ResultInfo FAIL_ON_REWRITE = new ResultInfo("010000015", "FAIL_ON_REWRITE", "fail on rewrite", "F");
+    public static final ResultInfo INVALID_PASSWORD = new ResultInfo("010000016", "INVALID_PASSWORD", "invalid password", "F");
     private static final Map<String, ResultInfo> codeToResultInfo;
     private static final List<ResultInfo> ResultInfoList = new ArrayList<>();
     static {
